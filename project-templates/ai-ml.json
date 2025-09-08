@@ -1,0 +1,102 @@
+{
+  "project_type": "AI/ML Project",
+  "description": "Artificial Intelligence or Machine Learning application",
+  "required_agents": [
+    "main-agent-project-manager",
+    "ai-engineer",
+    "data-engineer",
+    "code-reviewer",
+    "testing-specialist",
+    "deployment-engineer"
+  ],
+  "optional_agents": [
+    "product-manager",
+    "frontend-engineer"
+  ],
+  "variables": {
+    "PROJECT_TYPE": "AI/ML Project",
+    "PROJECT_DOMAIN": "artificial intelligence",
+    "FRONTEND_FRAMEWORK": "Streamlit/FastAPI/Flask",
+    "FRAMEWORK_FEATURES": "ML model serving, data processing, API endpoints",
+    "TYPE_SYSTEM": "Python type hints",
+    "STYLING_APPROACH": "Web framework styling / Jupyter notebooks",
+    "IMPLEMENTATION_AGENT": "ai-engineer",
+    "IMPLEMENTATION_DESCRIPTION": "ML model development, training pipelines, AI system architecture",
+    "IMPLEMENTATION_TRIGGERS": "Model training, data preprocessing, inference optimization, ML pipeline development",
+    "DESIGN_AGENT": "data-engineer",
+    "DESIGN_DESCRIPTION": "Data pipeline architecture, ETL processes, data quality",
+    "DESIGN_TRIGGERS": "Data pipeline design, ETL optimization, data quality issues, infrastructure scaling",
+    "DEPLOYMENT_AGENT": "deployment-engineer", 
+    "DEPLOYMENT_DESCRIPTION": "ML model deployment, containerization, cloud infrastructure",
+    "DEPLOYMENT_TRIGGERS": "Model serving, container orchestration, cloud deployment, monitoring setup",
+    "TECH_STACK": "Python, TensorFlow/PyTorch, FastAPI, Docker",
+    "BROWSER_SUPPORT_REQUIREMENTS": "API compatibility, modern browsers for web interfaces",
+    "PERFORMANCE_REQUIREMENTS": "Model inference <100ms, data processing throughput",
+    "ACCESSIBILITY_REQUIREMENTS": "API accessibility, user interface compliance",
+    "QUALITY_METRICS": "Model accuracy >90%, test coverage 80%+",
+    "PERFORMANCE_STANDARDS": "Model inference latency, data processing speed",
+    "TESTING_FRAMEWORK": "pytest + ML testing frameworks",
+    "E2E_TEST_FRAMEWORK": "pytest + API testing",
+    "UNIT_TEST_FRAMEWORK": "pytest",
+    "TEST_COVERAGE_TARGET": "80",
+    "PERFORMANCE_TEST_REQUIREMENTS": "Model performance benchmarking, load testing",
+    "DEPLOYMENT_PLATFORM": "AWS/GCP/Azure ML services",
+    "INFRASTRUCTURE_TYPE": "cloud ML infrastructure",
+    "CI_CD_PLATFORM": "MLflow + GitHub Actions", 
+    "MONITORING_STACK": "MLflow + Prometheus + Grafana",
+    "INFRASTRUCTURE_CONFIGURATION": "Container orchestration with ML model serving"
+  },
+  "development_stages": [
+    "Data Collection & Exploration",
+    "Model Development & Training",
+    "Model Evaluation & Validation",
+    "API Development",
+    "Testing & Quality Assurance",
+    "Model Deployment",
+    "Monitoring & Maintenance"
+  ],
+  "typical_file_structure": [
+    {
+      "folder_name": "src/models",
+      "folder_description": "ML model definitions and training"
+    },
+    {
+      "folder_name": "src/data",
+      "folder_description": "Data processing and ETL"
+    },
+    {
+      "folder_name": "src/api",
+      "folder_description": "API endpoints and serving"
+    },
+    {
+      "folder_name": "notebooks",
+      "folder_description": "Jupyter notebooks for experimentation"
+    },
+    {
+      "folder_name": "tests",
+      "folder_description": "Model and API tests"
+    },
+    {
+      "folder_name": "docker",
+      "folder_description": "Containerization configuration"
+    }
+  ],
+  "typical_commands": [
+    {
+      "command": "python train.py",
+      "description": "Train ML models"
+    },
+    {
+      "command": "python -m pytest",
+      "description": "Run test suite"
+    },
+    {
+      "command": "uvicorn main:app --reload",
+      "description": "Start API server"
+    },
+    {
+      "command": "docker build -t model .",
+      "description": "Build Docker image"
+    }
+  ]
+}

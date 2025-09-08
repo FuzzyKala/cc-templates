@@ -1,0 +1,93 @@
+{
+  "project_type": "Web Frontend",
+  "description": "Frontend web application with modern JavaScript framework",
+  "required_agents": [
+    "main-agent-project-manager",
+    "frontend-engineer",
+    "ui-ux-designer",
+    "code-reviewer",
+    "testing-specialist",
+    "deployment-engineer"
+  ],
+  "optional_agents": [
+    "product-manager"
+  ],
+  "variables": {
+    "PROJECT_TYPE": "Web Frontend",
+    "PROJECT_DOMAIN": "web application",
+    "FRONTEND_FRAMEWORK": "React/Next.js",
+    "FRAMEWORK_FEATURES": "SSR/SSG, hooks, modern patterns",
+    "TYPE_SYSTEM": "TypeScript",
+    "STYLING_APPROACH": "CSS Modules / Tailwind CSS / Styled Components",
+    "IMPLEMENTATION_AGENT": "frontend-engineer",
+    "IMPLEMENTATION_DESCRIPTION": "React/Next.js development, component building, performance optimization",
+    "IMPLEMENTATION_TRIGGERS": "Building components, technical architecture, performance optimization, API integration",
+    "DESIGN_AGENT": "ui-ux-designer",
+    "DESIGN_DESCRIPTION": "User research, interface design, design systems, accessibility",
+    "DESIGN_TRIGGERS": "User experience problems, visual design, design systems, accessibility improvements",
+    "DEPLOYMENT_AGENT": "deployment-engineer",
+    "DEPLOYMENT_DESCRIPTION": "Production deployment, CI/CD, infrastructure management",
+    "DEPLOYMENT_TRIGGERS": "Production deployment, CI/CD pipelines, infrastructure configuration",
+    "TECH_STACK": "React/Next.js, TypeScript, Modern CSS",
+    "BROWSER_SUPPORT_REQUIREMENTS": "Chrome 90+, Firefox 88+, Safari 14+, Edge 90+",
+    "PERFORMANCE_REQUIREMENTS": "90+ Lighthouse scores",
+    "ACCESSIBILITY_REQUIREMENTS": "WCAG 2.1 AA compliance",
+    "QUALITY_METRICS": "Test coverage 80%+ for critical components",
+    "PERFORMANCE_STANDARDS": "90+ Lighthouse scores across all categories",
+    "TESTING_FRAMEWORK": "Jest/Vitest + React Testing Library",
+    "E2E_TEST_FRAMEWORK": "Playwright/Cypress",
+    "UNIT_TEST_FRAMEWORK": "Jest/Vitest",
+    "TEST_COVERAGE_TARGET": "80",
+    "PERFORMANCE_TEST_REQUIREMENTS": "Core Web Vitals optimization",
+    "DEPLOYMENT_PLATFORM": "Vercel/Netlify/AWS",
+    "INFRASTRUCTURE_TYPE": "serverless/static hosting",
+    "CI_CD_PLATFORM": "GitHub Actions/Vercel",
+    "MONITORING_STACK": "Vercel Analytics/Google Analytics",
+    "INFRASTRUCTURE_CONFIGURATION": "Static site deployment with CDN"
+  },
+  "development_stages": [
+    "Foundation & Setup",
+    "Component Architecture", 
+    "Core Features Implementation",
+    "UI/UX Polish",
+    "Testing & Quality Assurance",
+    "Performance Optimization",
+    "Production Deployment"
+  ],
+  "typical_file_structure": [
+    {
+      "folder_name": "src/components",
+      "folder_description": "React components"
+    },
+    {
+      "folder_name": "src/pages",
+      "folder_description": "Application pages/routes"
+    },
+    {
+      "folder_name": "src/styles",
+      "folder_description": "CSS/styling files"
+    },
+    {
+      "folder_name": "public",
+      "folder_description": "Static assets"
+    }
+  ],
+  "typical_commands": [
+    {
+      "command": "npm run dev",
+      "description": "Start development server"
+    },
+    {
+      "command": "npm run build",
+      "description": "Create production build"
+    },
+    {
+      "command": "npm run test",
+      "description": "Run test suite"
+    },
+    {
+      "command": "npm run lint",
+      "description": "Run linting"
+    }
+  ]
+}
