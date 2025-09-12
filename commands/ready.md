@@ -1,18 +1,40 @@
 ---
 name: ready
-description: Get ready for work by scanning available resources and project context
+description: Get ready for work by scanning available resources and project context with optional setup verification
 ---
 
-# /ready - Resource & Context Scanner
+# /ready - Project Context Scanner & Validation
 
 🤖 **Main Project Manager Agent Ready**
 
-**I am serving as the main project manager agent** - Scanning available resources and current project context...
+Scan project resources, present current context, and optionally validate agent setup:
+
+## Standard Mode
+1. **Scan agents directory** using Glob(.claude/agents/*)
+2. **Read project status** from CLAUDE.md  
+3. **Check git status** to confirm repository state
+4. **Validate agent setup** if --validate flag provided
+
+## Setup Validation Mode
+Use `/ready --validate` to run comprehensive setup verification:
+
+### Agent System Health Check
+- [ ] **Directory Structure**: Verify .claude/ directory exists with proper subdirectories
+- [ ] **Required Agents**: Check main-agent-project-manager.md exists and is properly configured  
+- [ ] **Agent Count**: Validate appropriate number of agents for project type
+- [ ] **Configuration**: Verify template variables have been replaced
+- [ ] **Commands**: Check /ready and /recap commands are functional
+
+### Project Integration Check  
+- [ ] **CLAUDE.md**: Verify project documentation exists and has current session context
+- [ ] **Git Integration**: Ensure setup works with repository structure
+- [ ] **Agent Coordination**: Test basic delegation patterns work
+- [ ] **Context Flow**: Verify project context flows properly to agents
+
+Present concise summary:
 
 ## Available Specialist Agents
-
-**Scanning `.claude/agents/` directory for available specialists:**
-
+- List each agent found with brief capability description
 - **main-agent-project-manager**: Project coordination, task delegation, workflow management
 - **{{IMPLEMENTATION_AGENT}}**: {{IMPLEMENTATION_DESCRIPTION}}
 - **{{DESIGN_AGENT}}**: {{DESIGN_DESCRIPTION}}
@@ -21,61 +43,45 @@ description: Get ready for work by scanning available resources and project cont
 - **testing-specialist**: Test strategies, automation, quality assurance
 - **{{DEPLOYMENT_AGENT}}**: {{DEPLOYMENT_DESCRIPTION}}
 
-## System Resources Available
-
-**Coordination Framework:**
-- **Workflow Principles**: Adaptive, context-driven delegation patterns
-- **Agent Coordination**: Complete context provision and quality gates
-- **System Documentation**: Continuous learning and session management protocols
-- **Session Archive**: Complete historical records in `.claude/sessions/session-history.md`
-- **Rolling Window Documentation**: CLAUDE.md optimized for current + recent context
-
-**Delegation Patterns Available:**
-- **Single Agent**: Direct specialist assignment for domain-specific tasks
-- **Sequential**: Agent A → Agent B coordination for dependent work
-- **Parallel**: Multiple agents working simultaneously on independent tasks
-- **Review**: Implementation → validation → integration workflows
-
 ## Current Project Context
+- Current Stage (from CLAUDE.md)
+- Next Priority (from CLAUDE.md)
+- Project Status percentage
+- Recent Changes summary
+- Any Blockers
 
-**Reading CLAUDE.md for current + recent context...**
-*(Current session status, priorities, last 2 sessions for immediate context)*
-
-**Current Stage Focus:**
-*({{CURRENT_STAGE}}: {{STAGE_DESCRIPTION}})*
-
-**Full Project History Available:**
-*(Complete session records in `.claude/sessions/session-history.md` for complex tasks requiring deeper context)*
-
-**Git Repository Status:**
-*(Current branch, working tree state, and repository health)*
+## Git Repository Status
+- Current branch
+- Working tree state (clean/modified)
 
 ## Project Information
 - **Project Type**: {{PROJECT_TYPE}}
 - **Technology Stack**: {{TECH_STACK}}
-- **Current Phase**: {{PROJECT_PHASE}}
 - **Primary Focus**: {{PRIMARY_FOCUS}}
 
+## Validation Results (if --validate used)
+```markdown
+✅ Agent Setup Validation Complete
+
+Directory Structure: ✅ .claude/ with agents/, commands/, system/, sessions/
+Agent Configuration: ✅ 4 agents configured properly
+- main-agent-project-manager: ✅ Central coordination ready  
+- frontend-engineer: ✅ Next.js development configured
+- ui-ux-designer: ✅ Responsive design and accessibility ready
+- code-reviewer: ✅ Quality gates and performance validation ready
+- testing-specialist: ✅ Jest/RTL/Cypress testing strategies ready
+
+Template Variables: ✅ All {{VARIABLES}} replaced with project-specific values
+Commands: ✅ /ready and /recap operational
+Project Integration: ✅ CLAUDE.md updated with agent coordination context
+
+🚀 Agent coordination system fully operational and ready for development tasks
+```
+
 ## Ready for Coordination
+Confirm initialization complete and ready to coordinate {{PROJECT_TYPE}} tasks using context-driven delegation patterns.
 
-**Initialization Complete:**
-- ✅ Specialist agents identified and capabilities mapped
-- ✅ Coordination patterns and workflows available
-- ✅ Current project context analyzed from CLAUDE.md (rolling window)
-- ✅ Session archive system understood and accessible
-- ✅ Git status confirmed and ready for work
-- ✅ {{PROJECT_TYPE}} project configuration understood
-
-## Documentation Architecture
-
-**Rolling Window System:**
-- **CLAUDE.md**: Current session + last 2 sessions (focused, immediate context)
-- **Session Archive**: Complete project history with full technical detail
-- **When to check archive**: Complex tasks requiring understanding of earlier architectural decisions or implementation patterns
-
-**Next Steps:** 
-Provide task requirements and I'll coordinate with appropriate specialists using context-driven delegation patterns. **Delegation principle: When in doubt, delegate to the appropriate specialist rather than handling directly.** All agents have access to current context via CLAUDE.md and complete project history via session archive.
-
----
-
-**Usage:** This command works for any project with `.claude/` structure and rolling window documentation. It inventories available resources and understands both current context (CLAUDE.md) and complete history (session archive) for effective coordination.
+**Usage Options:**
+- `/ready` - Standard session initialization with project context
+- `/ready --validate` - Include comprehensive agent setup verification
+- Run at session start for {{PROJECT_TYPE}} project context and agent capability overview

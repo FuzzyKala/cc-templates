@@ -16,9 +16,9 @@ The Claude agent system operates on **adaptive coordination** rather than rigid 
 - Provide complete context to enable informed decision-making
 
 **Examples**:
-- Production optimization stage → Focus on deployment-engineer + frontend-engineer
-- Bug fixes → code-reviewer (analysis) → frontend-engineer (fix)
-- New features → product-manager → ui-ux-designer → frontend-engineer
+- Production optimization stage → Focus on deployment-engineer + fullstack-engineer
+- Bug fixes → code-reviewer (analysis) → fullstack-engineer (fix)
+- New features → product-manager → ui-ux-designer → fullstack-engineer
 
 ### 2. Complete Context Provision
 **Principle**: Always provide full project understanding to specialist agents.
@@ -106,13 +106,23 @@ Main Agent → Implementation Agent → Review Agent → Integration
 - Immediate user responses without specialized analysis
 - Context gathering and project status updates
 
-### Specialist Selection Guide
+### 5 Core Specialist Agents
 
-**{{AGENT_TYPE}} Agent**: 
-- {{AGENT_EXPERTISE_DESCRIPTION}}
-- {{WHEN_TO_USE_EXAMPLES}}
+**Implementation Specialist**: 
+- Code development, technical architecture, feature building, performance optimization
+- Use for: Building components, API development, database integration, technical problem-solving
 
-*Note: Customize this section based on your project's selected agent types*
+**Design Specialist**:
+- UI/UX design, system architecture, user experience, design systems, data architecture
+- Use for: Interface design, user experience problems, system design, design patterns, data modeling
+
+**Quality Specialist**:
+- Code review, testing strategies, security analysis, performance validation, quality assurance
+- Use for: Pre-production quality gates, security concerns, test automation, code quality validation
+
+**Deployment Specialist**:
+- Production deployment, CI/CD, infrastructure management, monitoring, DevOps
+- Use for: Production releases, infrastructure setup, deployment automation, monitoring setup
 
 ## Coordination Best Practices
 

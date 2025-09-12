@@ -124,22 +124,13 @@ When user types `/recap`, follow these steps systematically:
 - **Check TodoWrite completed items** if applicable for additional context
 
 **Step 3: Content Generation** 
-- **Create new session section** following established pattern:
+- **Create new session section** following simplified pattern:
   ```markdown
   ### Session X Achievements (YYYY-MM-DD)
   
   ✅ **Achievement Name**: Detailed description of what was accomplished
   ✅ **Technical Implementation**: Specific technical work completed
   ✅ **Process Improvement**: Workflow or coordination enhancements
-  
-  #### Session X [Technical Framework/Details]: (if relevant)
-  - **Component/System**: Technical specifications or framework details
-  - **Configuration**: Settings or setup information
-  
-  #### Session X Lessons Learned:
-  ✅ **Effective Pattern**: What worked well in coordination/implementation
-  ✅ **Process Insight**: Improvements identified or successful approaches
-  ⚠️ **Challenge Resolved**: Any issues encountered and how they were solved
   ```
 
 **Step 4: Status Updates**
@@ -161,10 +152,11 @@ When user types `/recap`, follow these steps systematically:
 - **Allow edits** if user wants modifications to achievements or lessons
 
 **Step 6: Apply Updates**
-- **Insert new session section** in chronological order with other session achievements
+- **Archive previous session** to `.claude/sessions/session-history.md` (if exists)
+- **Replace session section** with new current session achievements
 - **Update Current Session Status** with new information
-- **Preserve all existing content** - only add new section and update status fields
-- **Maintain exact formatting** consistency with existing sessions
+- **Preserve all existing content** except for previous session section
+- **Maintain exact formatting** consistency
 
 ### Quality Assurance Checks
 
@@ -216,58 +208,58 @@ This systematic approach ensures no progress is lost and maintains consistent do
 ### Development-Focused Sessions
 **Typical Pattern**:
 1. **Context Review**: Understand current development state
-2. **Requirements Clarification**: Use product-manager if needs unclear
-3. **Implementation Coordination**: Delegate to {{IMPLEMENTATION_AGENT}}
-4. **Quality Assurance**: Review with code-reviewer or testing-specialist
+2. **Requirements Clarification**: Use design-specialist for requirements analysis
+3. **Implementation Coordination**: Delegate to implementation-specialist
+4. **Quality Assurance**: Review with quality-specialist
 5. **Integration**: Ensure work connects properly with existing project
 
 **Agent Coordination Focus**:
-- {{IMPLEMENTATION_AGENT}} for implementation work
-- Code-reviewer for quality validation
-- Testing-specialist if test coverage needed
-- {{DESIGN_AGENT}} if design decisions required
+- implementation-specialist for implementation work
+- quality-specialist for code review and validation
+- design-specialist if design decisions required
+- deployment-specialist for production concerns
 
 ### Review-Focused Sessions
 **Typical Pattern**:
 1. **Work Assessment**: Evaluate current implementation state
-2. **Quality Review**: Comprehensive code-reviewer analysis
-3. **Testing Validation**: Testing-specialist for coverage and scenarios
-4. **Performance Check**: {{PERFORMANCE_AGENT}} coordination
+2. **Quality Review**: Comprehensive quality-specialist analysis
+3. **Testing Validation**: quality-specialist for coverage and scenarios
+4. **Performance Check**: implementation-specialist coordination
 5. **Integration Verification**: Ensure all components work together
 
 **Agent Coordination Focus**:
-- Code-reviewer for comprehensive analysis
-- Testing-specialist for quality assurance
-- {{DEPLOYMENT_AGENT}} for production readiness
+- quality-specialist for comprehensive analysis and testing
+- deployment-specialist for production readiness
+- implementation-specialist for optimization needs
 - Multiple agents for cross-validation
 
 ### Deployment-Focused Sessions
 **Typical Pattern**:
 1. **Readiness Assessment**: Review completion and quality state
-2. **Production Preparation**: {{DEPLOYMENT_AGENT}} for optimization
-3. **Final Quality Gates**: Code-reviewer + testing-specialist validation
-4. **Deployment Execution**: {{DEPLOYMENT_AGENT}} with monitoring
+2. **Production Preparation**: deployment-specialist for optimization
+3. **Final Quality Gates**: quality-specialist validation
+4. **Deployment Execution**: deployment-specialist with monitoring
 5. **Post-Deployment Validation**: Confirm successful deployment
 
 **Agent Coordination Focus**:
-- {{DEPLOYMENT_AGENT}} as primary specialist
-- Code-reviewer for pre-deployment validation
-- Testing-specialist for quality confirmation
-- {{IMPLEMENTATION_AGENT}} for any optimization needs
+- deployment-specialist as primary specialist
+- quality-specialist for pre-deployment validation
+- implementation-specialist for any optimization needs
+- design-specialist for user experience verification
 
 ### Problem-Resolution Sessions
 **Typical Pattern**:
-1. **Issue Analysis**: Code-reviewer for root cause analysis
+1. **Issue Analysis**: quality-specialist for root cause analysis
 2. **Solution Design**: Appropriate specialist based on problem domain
-3. **Implementation**: {{IMPLEMENTATION_AGENT}} or relevant specialist
-4. **Validation**: Testing-specialist + code-reviewer
+3. **Implementation**: implementation-specialist or relevant specialist
+4. **Validation**: quality-specialist for thorough validation
 5. **Prevention Planning**: Update processes to prevent recurrence
 
 **Agent Coordination Focus**:
-- Code-reviewer for analysis and validation
-- Domain specialist for solution implementation
-- Testing-specialist for regression prevention
-- Process improvements based on lessons learned
+- quality-specialist for analysis and validation
+- implementation-specialist for solution implementation
+- design-specialist for UX-related issues
+- deployment-specialist for production issues
 
 ## Session Effectiveness Metrics
 

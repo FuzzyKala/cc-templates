@@ -16,30 +16,6 @@
 ✅ **{{ACHIEVEMENT_2}}**: {{ACHIEVEMENT_2_DESCRIPTION}}
 ✅ **{{ACHIEVEMENT_3}}**: {{ACHIEVEMENT_3_DESCRIPTION}}
 
-#### Session {{SESSION_NUMBER}} Technical Framework:
-
-- **{{TECHNICAL_COMPONENT_1}}**: {{TECHNICAL_DETAILS_1}}
-- **{{TECHNICAL_COMPONENT_2}}**: {{TECHNICAL_DETAILS_2}}
-- **{{TECHNICAL_COMPONENT_3}}**: {{TECHNICAL_DETAILS_3}}
-
-#### Session {{SESSION_NUMBER}} Lessons Learned:
-
-✅ **{{LESSON_1}}**: {{LESSON_1_DESCRIPTION}}
-✅ **{{LESSON_2}}**: {{LESSON_2_DESCRIPTION}}
-✅ **{{LESSON_3}}**: {{LESSON_3_DESCRIPTION}}
-
-### Session {{PREV_SESSION_1}} Achievements ({{PREV_DATE_1}})
-
-✅ **{{PREV_ACHIEVEMENT_1}}**: {{PREV_ACHIEVEMENT_1_DESC}}
-✅ **{{PREV_ACHIEVEMENT_2}}**: {{PREV_ACHIEVEMENT_2_DESC}}
-✅ **{{PREV_ACHIEVEMENT_3}}**: {{PREV_ACHIEVEMENT_3_DESC}}
-
-### Session {{PREV_SESSION_2}} Achievements ({{PREV_DATE_2}})
-
-✅ **{{PREV2_ACHIEVEMENT_1}}**: {{PREV2_ACHIEVEMENT_1_DESC}}
-✅ **{{PREV2_ACHIEVEMENT_2}}**: {{PREV2_ACHIEVEMENT_2_DESC}}
-✅ **{{PREV2_ACHIEVEMENT_3}}**: {{PREV2_ACHIEVEMENT_3_DESC}}
-
 ## Project Overview
 
 {{PROJECT_DESCRIPTION}} built with {{TECH_STACK}}. Features {{KEY_FEATURES}} and {{ARCHITECTURE_DESCRIPTION}}.
@@ -78,10 +54,9 @@
 ```
 {{PROJECT_NAME}}/
 ├── .claude/
-│   ├── agents/                 # {{AGENT_COUNT}} specialized agent definitions
-│   ├── commands/               # Session management commands
+│   ├── agents/                 # 5 core agent definitions
 │   ├── sessions/               # Session history archive
-│   └── system/                 # System documentation and continuous learning
+│   └── system/                 # System coordination and session management
 {{#FILE_STRUCTURE}}
 ├── {{FOLDER_NAME}}/           # {{FOLDER_DESCRIPTION}}
 {{/FILE_STRUCTURE}}
@@ -119,23 +94,21 @@
 
 ## Session Initialization
 
-**Use `/ready` command** - Automated session initialization that provides complete project context, current stage focus, and coordination setup in one command.
+**Use `/ready` command** - Global command from `~/.claude/commands/ready.md` for automated session initialization.
 
 ## Session Recap
 
-**Use `/recap` command** - Automated session documentation with rolling window management that archives old sessions, maintains current context, and prepares seamless handoff for next session.
+**Use `/recap` command** - Global command from `~/.claude/commands/recap.md` for automated session documentation.
 
 ## System Documentation Reference
 
-**Commands**: See `.claude/commands/ready.md` and `.claude/commands/recap.md` for automated session initialization and documentation  
-**Specialist Agents**: See `.claude/agents/` for {{AGENT_COUNT}} specialist agents ({{AGENT_LIST}})  
+**Commands**: Global commands in `~/.claude/commands/` (ready, recap)  
+**Specialist Agents**: See `.claude/agents/` for 5 core specialist agents (main-agent-project-manager, implementation-specialist, design-specialist, quality-specialist, deployment-specialist)  
 **Session Archive**: See `.claude/sessions/session-history.md` for complete historical session records (rolling window system)
 
 **System Framework**:
 
-- **Agent Evolution**: `.claude/system/agent-evolution.md` - Agent standardization history and design principles
 - **Workflow Coordination**: `.claude/system/workflow-principles.md` - Delegation philosophy and coordination patterns
-- **Continuous Learning**: `.claude/system/continuous-learning.md` - Improvement framework and lesson capture
 - **Session Management**: `.claude/system/session-management.md` - Session templates and handoff protocols
 
 **Agent Usage Pattern**: Start each session with `/ready` command for complete initialization. When in doubt, delegate to the appropriate specialist rather than handling directly.
