@@ -81,8 +81,8 @@ CC_VERSION=$(cat "$CC_TEMPLATES_ROOT/.version")
 CLAUDE_VERSION=$(cat ~/.claude/.version 2>/dev/null || echo "v0.0.0")
 
 echo -e "${BLUE}📊 Version Check${NC}"
-echo -e "  cc-templates version: ${YELLOW}$CC_VERSION${NC}"
-echo -e "  ~/.claude version: ${YELLOW}$CLAUDE_VERSION${NC}"
+echo -e "cc-templates version: ${YELLOW}$CC_VERSION${NC}"
+echo -e "~/.claude version:    ${YELLOW}$CLAUDE_VERSION${NC}"
 
 # Simple version comparison - if they're different, update
 if [[ "$CC_VERSION" == "$CLAUDE_VERSION" ]]; then
@@ -112,36 +112,36 @@ fi
 # Copy commands (global slash commands)
 echo -e "${YELLOW}📋 Updating global commands...${NC}"
 cp "$CC_TEMPLATES_ROOT/templates/commands"/*.md ~/.claude/commands/
-echo -e "  ✅ Copied: ready.md, recap.md, setup-agents.md"
+echo -e "   ✅ Copied: ready.md, recap.md, setup-agents.md"
 
 # Copy agent templates
 echo -e "${YELLOW}🤖 Updating agent templates...${NC}"
 cp "$CC_TEMPLATES_ROOT/templates/agents"/*.md ~/.claude/agents/
-echo -e "  ✅ Copied: 5 core agent templates"
+echo -e "   ✅ Copied: 5 core agent templates"
 
 # Copy system framework files
 echo -e "${YELLOW}⚙️  Updating system framework...${NC}"
 cp "$CC_TEMPLATES_ROOT/templates/system"/*.md ~/.claude/system/
-echo -e "  ✅ Copied: workflow-principles.md, session-management.md"
+echo -e "   ✅ Copied: workflow-principles.md, session-management.md"
 
 # Copy hooks
 echo -e "${YELLOW}🎣 Updating session hooks...${NC}"
 cp "$CC_TEMPLATES_ROOT/templates/hooks"/*.py ~/.claude/hooks/
-echo -e "  ✅ Copied: session-start.py"
+echo -e "   ✅ Copied: session-start.py"
 
 # Copy template files (CLAUDE.md template, etc.) to templates/ subdirectory
 echo -e "${YELLOW}📄 Updating template files...${NC}"
 mkdir -p ~/.claude/templates
 cp "$CC_TEMPLATES_ROOT/templates/CLAUDE.md" ~/.claude/templates/
-echo -e "  ✅ Copied: CLAUDE.md template"
+echo -e "   ✅ Copied: CLAUDE.md template"
 
 # Update version file
 echo -e "${YELLOW}🔢 Updating version...${NC}"
 echo "$CC_VERSION" > ~/.claude/.version
-echo -e "  ✅ Updated ~/.claude/.version to $CC_VERSION"
+echo -e "   ✅ Updated ~/.claude/.version to $CC_VERSION"
 
 # Verify installation
-echo -e "${YELLOW}✅ Verifying installation...${NC}"
+echo -e "${YELLOW}Verifying installation...${NC}"
 
 # Check commands
 COMMANDS_COUNT=$(ls ~/.claude/commands/*.md 2>/dev/null | wc -l)
@@ -176,4 +176,4 @@ echo -e "• ${YELLOW}/setup-agents${NC} - Configure project agents (auto-detect
 echo -e "• ${YELLOW}/ready${NC} - Initialize session with project context"  
 echo -e "• ${YELLOW}/recap${NC} - Document session progress and achievements"
 echo ""
-echo -e "${GREEN}✨ cc-templates v2 ready for use!${NC}"
+echo -e "${GREEN}✨ cc-templates $CC_VERSION ready for use!${NC}"
