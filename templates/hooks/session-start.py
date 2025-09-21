@@ -152,11 +152,28 @@ Only perform version checking - wait for user input if update is available.
    ```
 
 **Update Actions (if user confirms update):**
-- Copy ~/.claude/agents/ → project .claude/agents/
-- Copy ~/.claude/commands/ → project .claude/commands/
-- Copy ~/.claude/system/ → project .claude/system/
-- Update project .claude/.version with new version
-- Show update summary before proceeding to initialization"""
+- **Clean existing directories**: Remove old .claude/agents/, .claude/commands/, .claude/system/ to avoid conflicts
+- **Copy fresh resources**: Copy ~/.claude/agents/ → project .claude/agents/
+- **Copy commands**: Copy ~/.claude/commands/ → project .claude/commands/
+- **Copy system files**: Copy ~/.claude/system/ → project .claude/system/
+- **Update version**: Update project .claude/.version with new version
+- **Show update summary**: List what was removed and what was added
+
+**Cleanup Commands:**
+```bash
+# Remove old directories completely
+rm -rf .claude/agents/
+rm -rf .claude/commands/
+rm -rf .claude/system/
+
+# Copy fresh resources from global
+cp -r ~/.claude/agents/ .claude/
+cp -r ~/.claude/commands/ .claude/
+cp -r ~/.claude/system/ .claude/
+cp ~/.claude/.version .claude/.version
+```
+
+This ensures no old files like 'fullstack-engineer.md' remain when updating to new agent structure."""
 
 # Determine which message to use based on project detection
 if is_cc_templates_project():
