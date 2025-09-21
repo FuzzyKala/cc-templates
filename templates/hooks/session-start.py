@@ -62,7 +62,7 @@ Ready for cc-templates development and maintenance tasks."""
 # Normal project session initialization message with version checking
 session_start_message = """🚀 **SESSION START PROCEDURES**
 
-Claude, please perform the following project validation and session initialization with version checking:
+Claude, please perform the following version check first:
 
 📋 **CC-TEMPLATES RESOURCE VERSION CHECK**
 
@@ -75,11 +75,12 @@ Claude, please perform the following project validation and session initializati
    - If exists: Read version from project .claude/.version
 
 3. **Version Comparison**: Compare ~/.claude version vs project version
-   - If ~/.claude version > project version: Ask user for confirmation to update
-   - If versions equal: Proceed with normal setup
+   - If ~/.claude version > project version: Show update prompt and WAIT for user response
+   - If versions equal: Continue with session initialization
    - If ~/.claude missing: Show installation instructions
 
-**Version Update Confirmation (if needed):**
+**IMPORTANT**: If an update is available, show this prompt and STOP to wait for user input:
+
 ```
 🔄 **CC-TEMPLATES UPDATE AVAILABLE**
 
@@ -94,33 +95,68 @@ cc-templates resources can be updated with latest:
 Would you like to update to the latest version? (y/N):
 ```
 
-**Update Actions (if user confirms):**
-- Copy ~/.claude/agents/ → project .claude/agents/
-- Copy ~/.claude/commands/ → project .claude/commands/
-- Copy ~/.claude/system/ → project .claude/system/
-- Update project .claude/.version with new version
-- Show update summary
+**Do NOT proceed with session initialization until user responds to the update prompt.**
 
-**Session Initialization (after version handling):**
+**Error Handling:**
+- If ~/.claude/.version missing: "❌ Error: cc-templates resources not found in ~/.claude. Please run update-claude-global.sh in cc-templates project."
+- Always show current version info when available
+
+Only perform version checking - wait for user input if update is available.
+
+**After user responds:**
+- If user says "yes" or "y": Update resources and then run session initialization
+- If user says "no" or "n": Skip update and run session initialization
+- User can also use /ready command for manual initialization
+
+**Complete Session Initialization (when ready to proceed):**
+
 4. **Execute /ready functionality**: If .claude/commands/ready.md exists
    - Use Glob tool to scan actual .claude/agents/* directory
    - Use Read tool to load actual CLAUDE.md project status
    - Use Bash tool to check actual git status and current branch
-   - Use Read tool to scan actual .claude/system/ files
+   - Use Glob tool to scan actual .claude/system/* files
 
 5. **Present real project context**:
-   - Show actual agent specialists found
-   - Display current project status from CLAUDE.md
-   - Report actual git repository state
-   - List actual system files available
+   - Show actual agent specialists found with their roles
+   - Display current project status from CLAUDE.md (stage, completion %, priorities)
+   - Report actual git repository state (branch, working tree status)
+   - List actual system files available (workflow-principles, session-management)
    - Acknowledge role as main project manager agent
 
-**Error Handling:**
-- If ~/.claude/.version missing: "❌ Error: cc-templates resources not found in ~/.claude. Please run sync-to-global.sh in cc-templates project."
-- If update fails: "❌ Update failed. Please check permissions and try again."
-- Always show current version info when available
+6. **Project Context Summary**:
+   ```
+   📋 SESSION INITIALIZATION COMPLETE
 
-Perform these steps automatically with version-aware resource management."""
+   ✅ Project Resources Status:
+   - Current project version: [VERSION]
+   - Available resources version: [CLAUDE_VERSION]
+   - Project agents and system files validated
+
+   🎯 Project Context:
+   - Project: [PROJECT_NAME]
+   - Status: [COMPLETION]% Complete ([STAGES] stages done)
+   - Active Stage: [CURRENT_STAGE]
+   - Next Priority: [NEXT_PRIORITY]
+   - Git Branch: [BRANCH] ([STATUS])
+
+   🤖 Available Specialists:
+   [List of actual agents found]
+
+   📋 System Framework:
+   [List of actual system files found]
+
+   🚀 Ready for [NEXT_STAGE]:
+   [Next priorities from CLAUDE.md]
+
+   I'm ready as your main project manager agent. What would you like to work on today?
+   ```
+
+**Update Actions (if user confirms update):**
+- Copy ~/.claude/agents/ → project .claude/agents/
+- Copy ~/.claude/commands/ → project .claude/commands/
+- Copy ~/.claude/system/ → project .claude/system/
+- Update project .claude/.version with new version
+- Show update summary before proceeding to initialization"""
 
 # Determine which message to use based on project detection
 if is_cc_templates_project():
