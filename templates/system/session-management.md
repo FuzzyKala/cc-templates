@@ -123,14 +123,20 @@ When user types `/recap`, follow these steps systematically:
 - **Note any blockers resolved** or new issues discovered during the session
 - **Check TodoWrite completed items** if applicable for additional context
 
-**Step 3: Content Generation** 
-- **Create new session section** following simplified pattern:
+**Step 3: Content Generation**
+- **Create new session section** following pattern:
   ```markdown
-  ### Session X Achievements (YYYY-MM-DD)
-  
+  ## Session X (YYYY-MM-DD) - Brief Title
+
+  ### Session X Achievements
+
   ✅ **Achievement Name**: Detailed description of what was accomplished
   ✅ **Technical Implementation**: Specific technical work completed
   ✅ **Process Improvement**: Workflow or coordination enhancements
+
+  **Impact:** Brief summary of session outcomes
+
+  ---
   ```
 
 **Step 4: Status Updates**
@@ -153,6 +159,9 @@ When user types `/recap`, follow these steps systematically:
 
 **Step 6: Apply Updates**
 - **Archive previous session** to `.claude/sessions/session-history.md` (if exists)
+- **Prepend new session** to top of session-history.md (newest-first)
+- **Prune old sessions**: Keep only last 10 sessions, delete older entries
+- **Update archive note** at bottom with current range (e.g., "Sessions 24-33")
 - **Replace session section** with new current session achievements
 - **Update Current Session Status** with new information
 - **Preserve all existing content** except for previous session section

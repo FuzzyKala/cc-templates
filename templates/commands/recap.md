@@ -22,6 +22,12 @@ Create new session entry with:
 1. **Archive previous session**: Move current session to `.claude/sessions/session-history.md`
 2. **Replace with new session**: Update CLAUDE.md with only current session achievements
 3. **Maintain focus**: Keep only current session for immediate context
+4. **Prune old sessions**: Keep only the **last 10 sessions** in session-history.md
+   - Identify sessions by `## Session X` headers (level-2 heading)
+   - Prepend new sessions to top (newest-first ordering)
+   - Delete sessions older than the 10 most recent
+   - Update archive note at bottom (e.g., "Sessions 24-33 archive")
+   - Git commit history preserves deleted sessions if needed
 
 ## Status Updates
 Update CLAUDE.md Current Session Status:
