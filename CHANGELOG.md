@@ -2,7 +2,7 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
-## [v3.2.1] — 2026-05-22
+## [v3.3.0] — 2026-05-22
 
 ### Added
 
