@@ -1,621 +1,141 @@
-# Claude Code Multi-Agent Coordination System
+# cc-templates
 
-<div align="center">
+> Multi-CLI (Claude Code + Codex CLI + Gemini CLI) project bootstrap with shared `AGENTS.md` config, CLI-first tool preference, and session-wrap skill.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-v2-blue.svg)](https://github.com/FuzzyKala/cc-templates/releases)
-[![Claude Code](https://img.shields.io/badge/Claude-Code-purple.svg)](https://claude.ai/code)
+[![Version](https://img.shields.io/badge/version-v3-blue.svg)](https://github.com/FuzzyKala/cc-templates/releases)
+[![AGENTS.md](https://img.shields.io/badge/AGENTS.md-AAIF-orange.svg)](https://agents.md/)
 
-_A streamlined, proven system for systematic multi-agent development with Claude Code_
+## What this is
 
-**Transform chaotic AI assistance into systematic, high-quality development workflows**
+Most coding agents (Claude Code, OpenAI Codex CLI, Google Gemini CLI) load a markdown config file from your repo root on every session. Each tool's default filename and import syntax differ:
 
-</div>
+- **Codex CLI** reads `AGENTS.md` natively.
+- **Claude Code** reads `CLAUDE.md` and supports `@AGENTS.md` inline imports.
+- **Gemini CLI** reads `GEMINI.md` and supports `@./AGENTS.md` imports.
 
-## 🎯 What Is This?
+If you use more than one of these tools, you end up with three near-duplicate config files that drift apart. `cc-templates` solves that: **`AGENTS.md` is the single canonical file**, and `CLAUDE.md` + `GEMINI.md` are thin one-line wrappers that import from it. Edit `AGENTS.md` → all three CLIs see the change.
 
-This system evolved through **7 real development sessions**, transforming from over-engineering to elegant simplicity. It provides:
+The repo also ships three skills that work inside Claude Code's `.claude/skills/` directory:
 
-- **Intelligent Agent Coordination**: 5 core specialist agents that handle complex development tasks
-- **Automated Project Setup**: One command (`/setup-agents`) sets up everything based on your project type
-- **Focused Session Management**: Rolling documentation that prevents information overload
-- **Quality Gates**: Built-in review processes ensure consistent, high-quality deliverables
+- `/wrap` — session-end full recap with 10-session rolling window.
+- `/ready` — read-only project context scanner.
+- `/setup-multi-agent` — bootstrap a new project with the AGENTS.md / CLAUDE.md / GEMINI.md trio.
 
-### The Problem It Solves
+`AGENTS.md` is governed by the Linux Foundation Agentic AI Foundation (formed 2025-12-09; founding members include Anthropic, OpenAI, Google, AWS, Microsoft, Cloudflare, Bloomberg). Spec: <https://agents.md/>. 60k+ open-source projects use it.
 
-- **Lost Context**: Sessions start from scratch, losing project understanding
-- **Inconsistent Quality**: No systematic approach to code review and validation
-- **Ad-hoc Coordination**: Random task handling instead of structured specialist delegation
-- **Documentation Bloat**: Project files become unwieldy and lose focus
+## Quick start
 
-### The Solution
-
-- **Intelligent Setup**: Auto-detects project type and configures optimal agents in 5 minutes
-- **Specialist Coordination**: 5 core agents handle all development domains effectively
-- **Session Management**: `/ready` and `/recap` commands handle context and progress
-- **Quality Assurance**: Built-in review processes maintain standards
-
----
-
-## 📦 Installation
-
-**First, install the cc-templates system globally:**
+Bootstrap an existing project (manual; one minute):
 
 ```bash
-# Install globally for use across all projects
-git clone https://github.com/FuzzyKala/cc-templates.git ~/.claude-templates
+cd /path/to/your-project
+git clone https://github.com/FuzzyKala/cc-templates.git /tmp/cc-templates
 
-# Verify installation works
-ls ~/.claude-templates
-# Should show: agents/ commands/ scripts/ system/ COMPREHENSIVE_GUIDE.md
+# Copy templates
+cp /tmp/cc-templates/templates/AGENTS.md.template AGENTS.md
+cp /tmp/cc-templates/templates/CLAUDE.md.template CLAUDE.md
+cp /tmp/cc-templates/templates/GEMINI.md.template GEMINI.md
+cat /tmp/cc-templates/templates/gitignore-additions.txt >> .gitignore
 
-# Test that /setup-agents command will be available
-cd any-project-directory
-# You can now run /setup-agents in any Claude Code session
+# Edit placeholders in AGENTS.md and CLAUDE.md, then verify
+sed -i "s/{{TODAY}}/$(date +%Y-%m-%d)/" CLAUDE.md
+# Now open AGENTS.md and fill in {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, etc.
 ```
 
-### ✅ **Installation Complete!**
+Or, inside Claude Code, run the skill — it walks you through the prompts:
 
-The system is now installed globally and ready to use in any project. You can now use `/setup-agents` in any Claude Code session.
+```
+/setup-multi-agent
+```
 
----
-
-## 🚀 Quick Start
-
-_✅ Installation complete! Now you can use the system in any project._
-
-### 1. Setup Any Project
+Verify (run each in a fresh terminal inside `/path/to/your-project`):
 
 ```bash
-# Navigate to any project and start a Claude Code session
-cd your-project-directory
+claude --print 'Without using any tools, just from your loaded context: does it contain a section called "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 
-# Run the setup command (now available after installation)
-/setup-agents
+gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
 
-# That's it! System will:
-# ✅ Auto-detect your project type (Next.js, React, Node.js, Python ML, Flutter, etc.)
-# ✅ Configure optimal agents for your tech stack
-# ✅ Create .claude/ directory with coordination system
-# ✅ Set up /ready and /recap commands
-# ✅ Validate everything works correctly
+codex --print 'What is this repo about?'
 ```
 
-### 2. Start Working
+All three should reference your filled-in `AGENTS.md`.
 
-```bash
-# Begin each Claude Code session with context scanning
-/ready
-
-# Work on your project with agent coordination
-# (Complex tasks automatically delegated to specialists)
-
-# End each session with progress documentation
-/recap
-```
-
-### 3. Success Indicators
-
-- Complex tasks get delegated to appropriate specialists automatically
-- Code quality improves through systematic review
-- Context is preserved between sessions
-- Development velocity increases through structured coordination
-
----
-
-## 📁 What You Get
+## Architecture
 
 ```
 your-project/
-├── .claude/
-│   ├── agents/                 # 5 core specialist agents
-│   │   ├── main-agent-project-manager.md    # Central coordination
-│   │   ├── implementation-specialist.md     # Code development
-│   │   ├── design-specialist.md            # UI/UX and architecture
-│   │   ├── quality-specialist.md           # Review and testing
-│   │   └── deployment-specialist.md        # Production and CI/CD
-│   ├── commands/               # Session management
-│   │   ├── ready.md           # /ready - session initialization
-│   │   └── recap.md           # /recap - progress documentation
-│   └── sessions/              # Session history archive
-└── CLAUDE.md                  # Current project context (~80-100 lines)
+├── AGENTS.md         ← canonical project context (single source of truth)
+├── CLAUDE.md         ← @AGENTS.md + Current Sprint Status (per-session)
+├── GEMINI.md         ← @./AGENTS.md  (one line)
+└── .gitignore        ← includes .claude/*, .gemini/, .agents/
 ```
 
----
+`CLAUDE.md` is the only file that changes session-to-session — it holds the rolling "Current Sprint Status." `AGENTS.md` holds the stable project context (working agreement, tech stack, conventions, tool preferences). `GEMINI.md` is one line that points at `AGENTS.md`.
 
-## 🎯 Core System Components
+User-level rules (a personal "Working Agreement" that applies to every project) propagate the same way:
 
-### 5 Core Agents (Streamlined from 19)
+- `~/.claude/CLAUDE.md` — Claude native.
+- `~/.codex/AGENTS.md` → symlink → `~/.claude/CLAUDE.md` (Codex follows symlinks).
+- `~/.gemini/GEMINI.md` contains `@/home/<user>/.claude/CLAUDE.md` (absolute path; Gemini does NOT follow symlinks per [issue #11547](https://github.com/google-gemini/gemini-cli/issues/11547)).
 
-#### **1. Main Agent (Project Manager)**
+The `templates/AGENTS.md.template` shipped here mirrors that user-level Working Agreement into each project, so the rules apply consistently whether the user-level config is loaded or not.
 
-- **Role**: Central coordination hub, task delegation, workflow management
-- **When to Use**: Always active - coordinates all other agents
-- **Capabilities**: Project planning, resource allocation, quality oversight
+## Skills included
 
-#### **2. Implementation Specialist**
+Drop these in your project's `.claude/skills/` to make them available as slash commands. (cc-templates' own root has them installed for dogfooding — clone the repo and copy `.claude/skills/*` into your project if you want them.)
 
-- **Role**: Code development, technical architecture, performance optimization
-- **When to Use**: Building features, solving technical challenges, code architecture
-- **Adapts to**: Frontend (React/Next.js), Backend (Node.js/Python), Mobile (React Native/Flutter), AI/ML (Python/TensorFlow)
+### `/wrap`
 
-#### **3. Design Specialist**
+Session-end full recap. Distills the current session into 5-7 bullets, archives the previous session block from `CLAUDE.md` to `.claude/sessions/session-history.md`, and maintains a 10-session rolling window — when active history hits 11, the oldest moves to `.claude/sessions/session-history-archive.md`.
 
-- **Role**: UI/UX design, system architecture, user experience optimization
-- **When to Use**: User interface work, design systems, architectural decisions
-- **Capabilities**: Responsive design, accessibility, design patterns, system design
+**Distinct from Claude Code's built-in `/recap`** (v2.1.108+), which is a one-line synopsis triggered after terminal idle. `/wrap` is the explicit, full session-end version.
 
-#### **4. Quality Specialist**
+### `/ready`
 
-- **Role**: Code review, testing strategies, security analysis, performance validation
-- **When to Use**: Before production deployment, quality gates, security concerns
-- **Capabilities**: Test automation, code quality, security review, performance optimization
+Read-only project context scanner. Prints a ~30-line snapshot: project name, current sprint state, git status, installed skills, CLI tool availability matrix (`gh`, `gws`, `rclone`, `ntn`, `acli`, `playwright`). Run at session start to confirm the toolchain is loaded.
 
-#### **5. Deployment Specialist**
+### `/setup-multi-agent`
 
-- **Role**: Production deployment, CI/CD, infrastructure, monitoring
-- **When to Use**: Production releases, infrastructure setup, deployment automation
-- **Capabilities**: DevOps processes, cloud infrastructure, monitoring, deployment pipelines
+Bootstraps a new project with `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` from `templates/`, patches `.gitignore`, and prints verification commands.
 
-### Session Management Commands
+## Tool preference: CLI over MCP
 
-#### `/ready` - Session Initialization
+The `AGENTS.md` template includes a section ranking CLI tools over MCP servers for the same service. Reasons:
 
-**What it does:**
+- **Token efficiency.** Benchmarks (Firecrawl, Arize, 2025) show roughly 17× fewer tokens per task for CLI vs MCP at 10k ops/month — 1.3-8.7k tokens (CLI) vs 32-82k tokens (MCP).
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Gemini. MCP OAuth is per-agent.
+- **Reliability.** CLI = one process call. MCP = an extra server hop.
 
-- Scans project context and available specialists
-- Reviews current status and priorities from CLAUDE.md
-- Identifies coordination patterns for the session
-- Validates agent setup (with `--validate` flag)
+| Service | Preferred CLI |
+|---|---|
+| GitHub | `gh` |
+| Google Workspace (Gmail / Calendar / Drive) | `gws` |
+| Google Drive bulk ops | `rclone` |
+| Notion | `ntn` |
+| Browser scripted flows | Playwright CLI |
+| JIRA | `acli` |
 
-**When to use:** Start of every Claude Code session
+Stay on MCP where no viable CLI exists: Canva, chrome-devtools, context7.
 
-#### `/recap` - Session Documentation
+## Manual setup (no skill needed)
 
-**What it does:**
+See [`templates/setup-instructions.md`](templates/setup-instructions.md) for the 5-step human checklist.
 
-- Archives previous session to session history
-- Updates CLAUDE.md with current session only (~80-100 lines)
-- Updates project status and completion tracking
-- Maintains focused, current context
+## v2 users
 
-**When to use:** End of every Claude Code session
+The previous architecture — "Claude Code Multi-Agent Coordination System" with 5 internal specialist agents and `/recap` / `/ready` / `/setup-agents` slash commands — is preserved on the [`v2-archive`](https://github.com/FuzzyKala/cc-templates/tree/v2-archive) branch. v3 is a full rewrite, not a backwards-compatible upgrade. The `/recap` command was renamed to `/wrap` because Claude Code v2.1.108 shipped a built-in `/recap` that cannot be overridden.
 
----
+For migration: there is no automatic migration path. Run `/setup-multi-agent` in any project that previously used cc-templates v2 — it will drop the new files alongside the old ones. You can then manually remove `.claude/agents/`, `.claude/commands/`, `.claude/system/` from that project.
 
-## 🔧 Project Type Detection & Configuration
+## References
 
-The `/setup-agents` command intelligently detects your project and configures optimal agents:
+- AGENTS.md spec: <https://agents.md/>
+- Claude Code memory imports (`@AGENTS.md`): <https://code.claude.com/docs/en/memory>
+- Claude Code skills format: <https://code.claude.com/docs/en/skills>
+- Gemini CLI memport: <https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/memport.md>
+- Codex CLI agents.md: <https://developers.openai.com/codex/guides/agents-md>
 
-### **Web Frontend (Next.js, React, Vue)**
+## License
 
-**Auto-detected when:**
-
-- `package.json` contains React, Next.js, Vue, Angular dependencies
-- Presence of frontend build tools and configurations
-
-**Configured Agents:** All 5 core agents optimized for:
-
-- Component development and modern web patterns
-- Responsive design and accessibility compliance
-- Performance optimization (Core Web Vitals)
-- Testing strategies (Jest/RTL/Cypress)
-- Production deployment (Vercel/Netlify/AWS)
-
-### **Backend API (Node.js, Python, Java)**
-
-**Auto-detected when:**
-
-- Node.js: `package.json` contains Express, Fastify, Koa
-- Python: `requirements.txt` contains FastAPI, Django, Flask
-- Java: Maven/Gradle files present
-
-**Configured Agents:** All 5 core agents optimized for:
-
-- API development and database integration
-- Security and performance validation
-- API testing and integration testing
-- Infrastructure management and deployment
-
-### **Mobile Apps (React Native, Flutter)**
-
-**Auto-detected when:**
-
-- React Native: `package.json` contains react-native
-- Flutter: `pubspec.yaml` exists
-
-**Configured Agents:** All 5 core agents optimized for:
-
-- Cross-platform mobile development
-- Mobile UX patterns and platform guidelines
-- Device testing and mobile-specific quality gates
-- App store deployment processes
-
-### **AI/ML Projects (Python, TensorFlow, PyTorch)**
-
-**Auto-detected when:**
-
-- `requirements.txt` contains TensorFlow, PyTorch, scikit-learn
-- Jupyter notebooks present
-
-**Configured Agents:** All 5 core agents optimized for:
-
-- Model development and training optimization
-- Data pipeline engineering and preprocessing
-- ML code quality and reproducibility standards
-- MLOps deployment and model monitoring
-
-### **Fullstack Projects**
-
-**Auto-detected when:** Project has both frontend and backend indicators
-
-**Configured Agents:** All 5 core agents optimized for:
-
-- End-to-end development coordination
-- API integration and data flow management
-- Full-stack testing strategies
-- Comprehensive deployment coordination
-
----
-
-## 📋 Usage Examples
-
-### Example 1: New Next.js Project
-
-```bash
-# Start new Next.js project
-npx create-next-app@latest my-app
-cd my-app
-
-# Set up agent coordination
-/setup-agents
-
-# Output:
-# 🔍 Analyzing project structure...
-# ✅ Next.js project detected
-# 🤖 Configuring 5 core agents for web frontend development
-# ✅ Agent coordination system ready
-
-# Begin development
-/ready
-# Now delegate complex tasks to specialists automatically
-```
-
-### Example 2: Existing Python API Project
-
-```bash
-# In existing project directory
-cd my-fastapi-project
-
-# Set up coordination system
-/setup-agents
-
-# Output:
-# 🔍 Analyzing project structure...
-# ✅ Python API project detected
-# 🤖 Configuring 5 core agents for backend development
-# ✅ Agent coordination system ready
-
-# Start coordinated development
-/ready
-```
-
-### Example 3: Interactive Setup (Unknown Project Type)
-
-```bash
-# For custom or unrecognized projects
-/setup-agents --interactive
-
-# Output:
-# ❓ Unable to auto-detect project type
-# 🔧 Interactive Project Type Selection
-# 1. Web Frontend (React/Next.js, Vue, etc.)
-# 2. Backend API (Node.js, Python, Java, etc.)
-# 3. Mobile App (React Native, Flutter, etc.)
-# 4. AI/ML Project (Python, TensorFlow, etc.)
-# 5. Fullstack (Frontend + Backend)
-# Select project type (1-5): _
-```
-
----
-
-## 🛠 Advanced Configuration
-
-### Customizing Agents
-
-After setup, customize agents in `.claude/agents/*.md` for your specific needs:
-
-```markdown
-# In implementation-specialist.md
-
-## Technology Focus
-
-- **Primary Framework**: Next.js 15 with App Router
-- **State Management**: Zustand + React Context
-- **Styling**: Tailwind CSS + CSS Modules
-- **Testing**: Vitest + React Testing Library
-
-## Custom Quality Standards
-
-- TypeScript strict mode required
-- 90%+ test coverage for business logic
-- Core Web Vitals score >90
-```
-
-### Project-Specific CLAUDE.md
-
-The system creates a focused project context file:
-
-```markdown
-# My Project - Current Session
-
-## Session Status
-
-- **Project Status**: 45% - Core features implemented
-- **Current Priority**: Performance optimization and testing
-- **Ready for**: Production deployment preparation
-
-## Active Technologies
-
-- Next.js 15, TypeScript, Tailwind CSS
-- Vercel deployment, GitHub Actions CI/CD
-
-## Current Session Achievements
-
-✅ **Performance Optimization**: Improved Core Web Vitals scores by 25%
-✅ **Testing Coverage**: Increased to 85% for critical components
-✅ **Accessibility**: Achieved WCAG 2.1 AA compliance
-
-## Next Priorities
-
-- [ ] Complete E2E testing with Playwright
-- [ ] Set up production monitoring
-- [ ] Finalize deployment pipeline
-```
-
-### Validation and Health Checks
-
-```bash
-# Check system health
-/ready --validate
-
-# Output:
-# ✅ Agent Setup Validation Complete
-# Directory Structure: ✅ .claude/ with proper subdirectories
-# Agent Configuration: ✅ 5 agents configured properly
-# Template Variables: ✅ All variables replaced
-# Commands: ✅ /ready and /recap operational
-# 🚀 Agent coordination system fully operational
-```
-
----
-
-## 🎉 Success Patterns
-
-### Immediate Benefits (First Session)
-
-- **5-minute setup** from project detection to working coordination
-- **Intelligent agent selection** based on actual project needs
-- **Built-in validation** ensures setup works correctly
-- **Immediate task delegation** to appropriate specialists
-
-### Long-term Benefits (After Multiple Sessions)
-
-- **Consistent quality standards** through systematic specialist review
-- **Improved development velocity** via structured coordination
-- **Knowledge preservation** across sessions and team members
-- **Cross-project learning** and pattern reuse
-
-### Team Collaboration
-
-```bash
-# Team member joins project
-cd shared-project
-/ready
-
-# Gets immediate context:
-# - Complete project understanding from CLAUDE.md
-# - Access to all specialist agents
-# - Current priorities and session history
-# - Established quality standards and workflows
-```
-
----
-
-## 📊 Proven Results
-
-### System Evolution (7 Real Sessions)
-
-- **Session 1-2**: Initial creation and basic agent setup
-- **Session 3**: **Major breakthrough** - 75% reduction in complexity
-- **Session 4-6**: Practical refinement through real development work
-- **Session 7**: **Documentation simplification** - solved scaling issues
-- **Session 8+**: **Streamlined system** - reduced from 19 to 5 core agents
-
-### Key Discoveries
-
-- **5 agents > 19 specialists**: Simplicity beats comprehensive coverage
-- **Auto-detection > manual setup**: Reduces setup friction dramatically
-- **Context-driven > rigid workflows**: Adapts to actual project needs
-- **Focused sessions > comprehensive tracking**: Maintains clarity without losing history
-
----
-
-## 🔄 Migrating from v1 to v2
-
-**If you have an existing project with cc-templates v1:**
-
-### Automatic Version Detection
-
-**The system now automatically detects your version:**
-
-```bash
-# 1. Update the global templates
-cd ~/.claude-templates
-git pull origin main
-
-# 2. Run setup - system detects version automatically
-cd your-existing-project
-/setup-agents
-
-# System will show:
-# "v1 installation detected! This will upgrade to v2..."
-# or "v2 already installed. This will refresh your setup..."
-```
-
-### Manual Backup (Optional)
-
-```bash
-# If you want to backup before upgrading:
-cd your-existing-project
-cp -r .claude .claude-v1-backup
-```
-
-### v1 → v2 Agent Changes
-
-**Old agents are replaced by 5 core agents:**
-
-- `fullstack-engineer` → `implementation-specialist`
-- `ui-ux-designer` → `design-specialist`
-- `code-reviewer` → `quality-specialist`
-- `testing-specialist` → `quality-specialist`
-- `deployment-engineer` → `deployment-specialist`
-
-**Your CLAUDE.md will be recreated** with the new template structure.
-
----
-
-## 🤝 Best Practices
-
-### Getting Started
-
-1. **Use auto-detection first** - Let the system configure optimal agents
-2. **Validate setup** - Always run `/ready --validate` after setup
-3. **Start simple** - Begin with small tasks to understand agent coordination
-4. **Customize gradually** - Adapt agents to your specific project needs
-
-### Effective Sessions
-
-1. **Begin with `/ready`** - Complete project context and agent overview
-2. **Delegate complex work** - Use specialists rather than handling directly
-3. **Use quality gates** - Have quality-specialist validate important changes
-4. **End with `/recap`** - Document progress and maintain session history
-
-### Team Coordination
-
-1. **Shared setup** - One team member runs setup, everyone benefits
-2. **Consistent standards** - Agents provide uniform quality gates
-3. **Knowledge sharing** - Session history preserves team learning
-4. **Onboarding acceleration** - New members get immediate context
-
----
-
-## 🛠 Troubleshooting
-
-### Common Issues & Solutions
-
-#### **Setup Problems**
-
-```bash
-# Problem: Auto-detection failed
-Solution: /setup-agents --interactive
-
-# Problem: Existing .claude/ directory conflicts
-Solution: /setup-agents --backup-first
-
-# Problem: Template variables not replaced
-Solution: Re-run /setup-agents to complete setup
-```
-
-#### **Usage Problems**
-
-```bash
-# Problem: Agents don't understand project context
-Solution: Update CLAUDE.md and use /ready at session start
-
-# Problem: Quality issues with agent work
-Solution: Provide clearer context when delegating tasks
-
-# Problem: Documentation getting too long
-Solution: Use /recap regularly to maintain focused sessions
-```
-
-### Getting Help
-
-- **Validation**: Use `/ready --validate` for setup verification
-- **Context**: Ensure CLAUDE.md reflects current project state
-- **Documentation**: Check `.claude/sessions/` for historical context
-- **Updates**: Update global templates with `cd ~/.claude-templates && git pull`
-
----
-
-## 📈 Success Metrics
-
-### Effective Coordination Indicators
-
-- [ ] **Right Specialist Selected**: Tasks automatically routed to appropriate domain expert
-- [ ] **Quality Consistency**: Deliverables meet standards across different specialists
-- [ ] **Context Preservation**: Sessions maintain project understanding over time
-- [ ] **Development Velocity**: Coordination enhances rather than slows development
-
-### System Health Indicators
-
-- [ ] **Agent Relevance**: Specialists regularly used for complex tasks
-- [ ] **Quality Gates**: Code review catches issues before production
-- [ ] **Session Flow**: `/ready` and `/recap` become natural workflow rhythm
-- [ ] **Team Adoption**: Multiple developers use shared coordination system
-
----
-
-## 🎯 What Makes This System Unique
-
-### **Proven Through Real Use**
-
-- Evolved through 7 actual development sessions
-- Tested on real projects with real deadlines
-- Simplified based on practical experience, not theory
-
-### **Intelligent and Simple**
-
-- Auto-detects project type in seconds
-- 5 core agents handle all development domains
-- One command setup, immediate productivity
-
-### **Focused on Quality**
-
-- Built-in review processes ensure consistent deliverables
-- Quality gates prevent issues from reaching production
-- Systematic specialist coordination maintains standards
-
-### **Scales with Projects**
-
-- Works for solo developers and teams
-- Adapts from simple scripts to complex applications
-- Preserves knowledge across sessions and team members
-
----
-
-<div align="center">
-
-**Ready to transform your development workflow?**
-
-```bash
-# Get started now
-/setup-agents
-```
-
-_Transform chaotic AI assistance into systematic, high-quality development workflows_
-
-**[Quick Start](#-quick-start) • [Examples](#-usage-examples) • [Troubleshooting](#-troubleshooting)**
-
-</div>
-
----
-
-## 📄 License
-
-MIT License - Built for the Claude Code community by developers who believe in systematic, high-quality AI-assisted development.
-
-do not implementation and ask me questions if you have any question, you feel it makes no
-sense or there's other better solution, you can use web search any MCP tools, or anything you
-need to help your work, ultrathink
+MIT. See [LICENSE](LICENSE).
