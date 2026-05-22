@@ -67,7 +67,7 @@ claude --print 'Without using any tools, just from your loaded context: does it 
 gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
 
 # Codex CLI reads AGENTS.md natively (no wrapper needed):
-codex --print 'What is this repo about?'
+codex exec 'What is this repo about?'
 ```
 
 If any of the three CLIs is not installed, mention which and link the user to:
