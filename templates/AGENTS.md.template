@@ -70,11 +70,40 @@ If migrating from an older config, link the old README / handbook / wiki here.
 
 ### Codex CLI Role
 
-Codex CLI loads this file natively (no `@import` needed). Use Codex for: precise diff-style edits, deterministic code transformations, when token budget is tight. Codex defaults to `gpt-5` as of 2026.
+Codex CLI loads this file natively (no `@import` needed). Defaults to `gpt-5` as of 2026. Good fit: precise diff-style edits, deterministic code transformations, well-specified sub-tasks where ~5 prompt constraints fully define the work.
 
 ### Gemini CLI Role
 
-Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Use Gemini for: long-context reads (large diffs, large file scans), Google Workspace integrations via `gws` CLI, multimodal (image / PDF) input. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
+Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Good fit: long-context reads (large diffs / file scans), Google Workspace via `gws` CLI, multimodal (image / PDF) input, small-scoped bugfixes with clear acceptance tests. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
+
+### Branch & Push Rules (applies to all delegated CLIs)
+
+PR flow, not direct push to `main`:
+
+1. Agent works on a feature branch named `<cli>/<task-slug>` (e.g. `codex/cleanup-imports`, `gemini/redesign-empty-state`).
+2. Before committing, agent runs and confirms green: typecheck + lint commands defined in "Build, Test, and Development Commands" below. For DB-touching work, also run any DB verification command.
+3. Commit using conventional style (`feat(scope): ...`, `fix(scope): ...`, etc.) with `Co-Authored-By: <CLI> <noreply@<vendor>.com>` trailer (`<noreply@openai.com>` for Codex, `<noreply@google.com>` for Gemini).
+4. Push the branch to origin and open a PR against `main`. Title = the conventional commit title. Body = what changed, what was tested, what the spec said.
+5. Do **NOT** self-merge. Wait for human review (or Claude orchestrator in multi-CLI setup).
+6. **Do NOT deploy from a feature branch.** Deploys happen post-merge from `main`, by the user or by Claude as orchestrator. Branch-deploy causes `main` ↔ prod desync (any later main-deploy reverts the agent's work).
+
+### Multi-CLI Parallel Workflow
+
+When running Codex and Gemini (or any 2+ CLIs) concurrently on the same repo, give each CLI its own worktree to avoid shared-state conflicts:
+
+```bash
+# Standard layout — run from inside the main worktree:
+git worktree add ../<project>-codex codex/<task-branch>
+git worktree add ../<project>-gemini gemini/<task-branch>
+```
+
+Then launch each CLI in its own directory. The main worktree (`<project>/`) stays reserved for Claude (orchestration, review, merge, post-merge deploy).
+
+**Why:** When CLIs share a worktree, one CLI switching branches under the other causes "stale `M file`" panic and stalls execution. Worktrees share git history but each has its own working tree state.
+
+Single-agent rounds (only one CLI at a time) don't need worktree isolation.
+
+**Orchestration brief rule (Claude side):** When writing a delegation brief for Codex or Gemini, the brief's ship section ends at "open PR, wait for review". Do NOT include a deploy command in the brief — let AGENTS.md's "agents don't deploy" rule (above) be canonical. Brief-level deploy instructions risk causing the agent to deploy from its feature branch, creating a branch→prod desync window.
 
 ## Tool Preference: CLI over MCP
 

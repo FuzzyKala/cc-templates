@@ -2,6 +2,22 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.1.1] — 2026-05-22
+
+### Added
+
+- `templates/AGENTS.md.template` — expanded **Codex CLI Role** + **Gemini CLI Role** with shared **Branch & Push Rules** subsection (PR flow, no self-merge, `<cli>/<task-slug>` naming, `Co-Authored-By` trailer per vendor, no branch-deploys).
+- `templates/AGENTS.md.template` — new **Multi-CLI Parallel Workflow** section: `git worktree add ../<project>-codex` / `../<project>-gemini` pattern for running 2+ CLIs concurrently on the same repo without shared-state branch-switch conflicts. Includes orchestration brief rule (Claude omits deploy command from delegated briefs).
+
+### Rationale
+
+Downstream Anchor project trial (2026-05-22, S67) ran Codex + Gemini in parallel for the first time and surfaced two reproducible failure modes worth codifying upstream:
+
+1. **Shared worktree panic** — Codex and Gemini launched in the same directory; Gemini's branch checkout under Codex caused "stale `M file`" mid-session and stalled Codex at the spec-approval checkpoint.
+2. **Branch-deploy desync** — Claude's delegation brief included a "same session must deploy" instruction; Codex followed it literally and shipped from its feature branch, putting prod ahead of `main` until the PR merged.
+
+Both are pure workflow/process learnings, generalizable to any multi-CLI project. No Anchor-specific behavior in the template additions.
+
 ## [v3.0.0] — 2026-05-22
 
 A full rewrite. v3 reframes cc-templates from a single-CLI multi-specialist coordination system (v2) into a multi-CLI (Claude Code + Codex CLI + Gemini CLI) project bootstrap with a shared `AGENTS.md` canonical config.
