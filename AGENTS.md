@@ -170,7 +170,7 @@ There is no build step. To test changes:
 
 ## Testing Guidelines
 
-Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `gemini -p`, and `codex --print` per the README and `templates/setup-instructions.md`.
+Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `GEMINI_CLI_TRUST_WORKSPACE=true gemini -p`, and `codex exec` per the README and `templates/setup-instructions.md`.
 
 ## Commit & Pull Request Guidelines
 

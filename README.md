@@ -54,9 +54,10 @@ Verify (run each in a fresh terminal inside `/path/to/your-project`):
 ```bash
 claude --print 'Without using any tools, just from your loaded context: does it contain a section called "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 
-gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
+# GEMINI_CLI_TRUST_WORKSPACE=true is required for Gemini CLI headless mode (-p flag):
+GEMINI_CLI_TRUST_WORKSPACE=true gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
 
-codex --print 'What is this repo about?'
+codex exec 'What is this repo about?'
 ```
 
 All three should reference your filled-in `AGENTS.md`.
