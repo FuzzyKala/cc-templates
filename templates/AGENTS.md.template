@@ -84,16 +84,18 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 - **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Gemini. MCP OAuth is per-agent.
 - **Reliability.** CLI flow is one process call; MCP adds a server hop.
 
-### Preferred CLIs
+**Preferred CLIs** (install status defaults to `⏳ not installed`; bootstrap user should run `command -v <tool>` per their machine and update to `✓ installed` where applicable):
 
-| Service | Preferred CLI | Notes |
-|---|---|---|
-| GitHub | `gh` | Widely installed, mature. |
-| Google Workspace (Gmail / Calendar / Drive) | `gws` | Official Google CLI, pre-1.0 as of 2026-05. |
-| Google Drive bulk ops | `rclone` | Mature alternative to `gws` for large transfers. |
-| Notion | `ntn` | Official, young. |
-| Browser scripted flows | Playwright CLI | Mature; use Playwright Python for headless automation. |
-| JIRA | `acli` | Atlassian official, GA 2026. |
+| Service | Preferred CLI | Install status | Notes |
+|---|---|---|---|
+| GitHub | `gh` | ⏳ not installed | Widely installed, mature. |
+| Google Workspace (Gmail / Calendar / Drive) | `gws` | ⏳ not installed | Official Google CLI, pre-1.0 as of 2026-05. |
+| Google Drive bulk ops | `rclone` | ⏳ not installed | Mature alternative to `gws` for large transfers. |
+| Notion | `ntn` | ⏳ not installed | Official, young. |
+| Browser scripted flows | Playwright CLI | ⏳ not installed | Mature; use Playwright Python for headless automation. |
+| JIRA | `acli` | ⏳ not installed | Atlassian official, GA 2026. |
+
+**Important for sub-agent prompts:** When delegating a task that requires a CLI tool, check this matrix's install status FIRST. For `⏳ not installed`, do one of: (a) ask the user to install before delegating, (b) fall back to the corresponding MCP if available, or (c) use a closer-fit alternative. Do NOT prompt sub-agents (Codex / Gemini) to invoke a tool listed as `⏳ not installed` — they will fail silently or hallucinate output.
 
 ### Stay on MCP (no viable CLI)
 
