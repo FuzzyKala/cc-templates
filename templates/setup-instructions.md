@@ -43,7 +43,7 @@ claude --print 'Without using any tools, just from your loaded context: does it 
 GEMINI_CLI_TRUST_WORKSPACE=true gemini -p 'Without using any tools, just from your loaded context: (a) does the project context exist? (b) does the Tool Preference section exist? Answer yes/no each.'
 
 # Codex CLI reads AGENTS.md natively — no import needed.
-codex --print 'What is this repo about?'
+codex exec 'What is this repo about?'
 ```
 
 Expected: all three CLIs reference content from your filled-in `AGENTS.md`.
