@@ -39,7 +39,8 @@ cd <your-project>
 claude --print 'Without using any tools, just from your loaded context: does it contain a section called "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 
 # Gemini CLI: @./AGENTS.md import from GEMINI.md should load the same context.
-gemini -p 'Without using any tools, just from your loaded context: (a) does the project context exist? (b) does the Tool Preference section exist? Answer yes/no each.'
+# GEMINI_CLI_TRUST_WORKSPACE=true is required for Gemini CLI headless mode (-p flag):
+GEMINI_CLI_TRUST_WORKSPACE=true gemini -p 'Without using any tools, just from your loaded context: (a) does the project context exist? (b) does the Tool Preference section exist? Answer yes/no each.'
 
 # Codex CLI reads AGENTS.md natively — no import needed.
 codex --print 'What is this repo about?'
