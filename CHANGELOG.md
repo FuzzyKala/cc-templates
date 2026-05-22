@@ -2,6 +2,16 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.2.1] — 2026-05-22
+
+### Added
+
+- `templates/AGENTS.md.template` — append "Dispatch pattern" paragraph to the Multi-CLI Parallel Workflow section. Claude writes delegation briefs to a file (suggested `<briefs-dir>/<cli>-current.md`); user dispatches with one-line reference and reports agent-done with branch name only. Reduces per-round copy-paste between Claude / Codex / Gemini terminals from ~250 lines to ~4 sentences.
+
+### Rationale
+
+Follow-up from v3.2.0 multi-CLI workflow additions. Downstream Anchor S67 trial highlighted that brief content and agent-output content are both reproducible from git (PR body, diffs, logs) — pasting them into chat is wasted human attention. The brief-in-file + branch-name-signal pattern eliminates that waste without adding tooling.
+
 ## [v3.2.0] — 2026-05-22
 
 ### Added

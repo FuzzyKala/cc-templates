@@ -105,6 +105,8 @@ Single-agent rounds (only one CLI at a time) don't need worktree isolation.
 
 **Orchestration brief rule (Claude side):** When writing a delegation brief for Codex or Gemini, the brief's ship section ends at "open PR, wait for review". Do NOT include a deploy command in the brief — let AGENTS.md's "agents don't deploy" rule (above) be canonical. Brief-level deploy instructions risk causing the agent to deploy from its feature branch, creating a branch→prod desync window.
 
+**Dispatch pattern (Claude side, optional but recommended):** To reduce copy-paste during multi-CLI rounds, Claude writes each delegation brief to a file (suggested path: `<briefs-dir>/<cli>-current.md`, e.g. `_bmad-output/briefs/codex-current.md`). User dispatches with one line: "read that path and follow it". When the agent finishes, user reports only the branch name (e.g. "done, branch `codex/cleanup-imports`") — Claude inspects via `gh pr view` / `git diff origin/<branch>` rather than expecting the agent's chat transcript.
+
 ## Tool Preference: CLI over MCP
 
 When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
