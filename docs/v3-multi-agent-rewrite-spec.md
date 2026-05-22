@@ -2,7 +2,7 @@
 
 ## Status & Meta
 
-- **Status:** draft (approved 2026-05-22)
+- **Status:** completed 2026-05-22. All 6 phases (0-5) shipped in a single session in `cc-templates` repo. v3.0.0 tagged as `.version` content; CHANGELOG.md v3.0.0 entry filed; all 3 CLI verifications (`claude --print`, `gemini -p` with `GEMINI_CLI_TRUST_WORKSPACE=true`, `codex exec`) confirmed `AGENTS.md` content is loaded correctly. Phase commits: `8576091` (phase 1) → `15cbb0f` (phase 2) → `4fc4e97` (phase 3) → `26b039a` + `0bc6141` (phase 4 cleanup + version override) → phase 5 dogfood (see git log).
 - **Author:** Kala + Claude Opus 4.7 (jsdesign-landing-page session 220)
 - **Target completion:** ~4-8 hours work, spread across 1-3 sessions
 - **Source context:** This spec was authored from a prior conversation where the user verified — via 4 parallel research agents and several rounds of empirical Bash/file checks — that (a) AGENTS.md is governed by the Linux Foundation Agentic AI Foundation (AAIF, Dec 2025), (b) `/recap` is a Claude Code built-in feature (v2.1.108+) and **cannot** be overridden, (c) `.claude/commands/*.md` are not deprecated but skills are recommended for new authoring, (d) building a custom multi-provider CLI is not worth it for a solo developer's profile. The same session refactored `jsdesign-landing-page` to the AGENTS.md canonical pattern (commits `5abadd5` + `06c8471` in that repo) — this spec brings the same architecture to cc-templates.

@@ -1,144 +1,32 @@
-# CC-Templates - Project Status
+@AGENTS.md
 
-## Current Session Status
+---
 
-- **Last Updated**: 2025-12-22 (Session 3)
-- **Project Status**: 97% Complete - Session management enhanced with rolling window
-- **Active Stage**: Production Ready
-- **Next Priority**: Release v1.1.0 and community sharing
-- **Recent Changes**: 10-session rolling window, session format standardization, best practices alignment
-- **Blockers**: None
-- **Ready for**: Production use and v1.1.0 release
+## Current Sprint Status
 
-### Session 3 Achievements (2025-12-22)
+**Last Updated:** 2026-05-22 (Session 1 — v3 launch)
+**Active Work:** v3 rewrite complete; cc-templates now dogfoods its own templates.
 
-✅ **10-Session Rolling Window**: Added pruning logic to recap command to keep only last 10 sessions in history
-✅ **Session Format Standardization**: Updated session-management.md to use `## Session X (YYYY-MM-DD) - Title` pattern
-✅ **Best Practices Research**: Validated against Keep a Changelog and Common Changelog standards
-✅ **Consistent Documentation**: Added pruning steps to both recap command and session-management system docs
+### Session 1 highlights
 
-## Project Overview
+- v3 rewrite of cc-templates per `docs/v3-multi-agent-rewrite-spec.md` (phases 0-5).
+- Replaced v2's "Claude Code Multi-Agent Coordination System" framing with multi-CLI (Claude Code + Codex CLI + Gemini CLI) bootstrap pattern.
+- Migrated v2 `commands/*.md` to v3 `.claude/skills/*/SKILL.md`: `/wrap`, `/ready`, `/setup-multi-agent`.
+- Added 5 template files under `templates/` for `setup-multi-agent` to consume.
+- Removed v2 directories (`agents/`, `commands/`, `project-templates/`, `system/`, legacy `templates/{agents,commands,hooks,system,CLAUDE.md}`) from `main`; all preserved on `v2-archive`.
+- Bumped `.version` to v3.0.0 and added `CHANGELOG.md`.
+- Dogfooded: cc-templates' own root now has `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` per the v3 pattern.
 
-CC-Templates provides a comprehensive template system for Claude Code users, featuring systematic multi-agent coordination, session management, and automated version control. Built for developers who want structured, high-quality AI-assisted development workflows.
+### Next session start
 
-## Tech Stack
+> Smoke-test `/wrap`, `/ready`, and `/setup-multi-agent` in a real working session. Audit `scripts/update-claude-global.sh` (still references v2 paths) and decide: update for v3 layout, or drop in favor of a simpler README-documented `cp -r templates/* <new-project>/` flow.
 
-- **Framework**: Template-based coordination system
-- **Language**: Bash scripts + Python hooks
-- **Automation**: Git pre-commit hooks with Claude analysis
-- **Distribution**: Global ~/.claude synchronization
-- **Versioning**: Semantic versioning with automated increments
+---
 
-## Project Structure
+## Auto-Update Instructions (for `/wrap` skill)
 
-```
-cc-templates/
-├── templates/                 # 📦 Template resources for distribution
-│   ├── agents/               # 5 core agent specialists
-│   ├── commands/             # 3 global commands (ready, recap, setup-agents)
-│   ├── system/               # 2 system files (workflow-principles, session-management)
-│   ├── hooks/                # session-start.py for other projects
-│   └── CLAUDE.md             # Project template for other projects
-├── scripts/                  # 🔧 Installation and sync scripts
-│   └── update-claude-global.sh  # Syncs templates/ → ~/.claude
-├── .git/hooks/pre-commit     # 🤖 Auto-version increment hook
-├── .version                  # 📋 Source truth version (v1.0.0)
-├── CLAUDE.md                 # 📄 This project's tracking
-└── README.md                 # 📚 Project documentation
-```
-
-## Development Workflow
-
-### Version Management System
-1. **Make changes** to templates/ directory
-2. **Commit changes** (pre-commit hook analyzes with Claude and increments version)
-3. **Run sync script** `./scripts/update-claude-global.sh` to update ~/.claude
-4. **Other projects** detect new version via session start hook and offer updates
-
-### Agent Coordination System
-- **main-agent.md**: Project coordination and task delegation
-- **implementation-specialist.md**: Core development and technical architecture
-- **design-specialist.md**: UI/UX design and system architecture
-- **quality-specialist.md**: Code review, testing, and security analysis
-- **deployment-specialist.md**: Production deployment and infrastructure
-
-### Commands Available
-- `/ready` - Initialize session with project context scanning
-- `/recap` - Document session progress and update project status
-- `/setup-agents` - Intelligent project detection and agent setup
-
-## Development Status
-
-### ✅ COMPLETED (7/7 stages)
-
-1. **Project Analysis** ✅ - Identified organizational issues and requirements
-2. **Structure Reorganization** ✅ - Templates/ folder created with clean separation
-3. **Version Management** ✅ - Semantic versioning with .version files
-4. **Pre-commit Automation** ✅ - Claude-powered version analysis and increments
-5. **Session Hook Enhancement** ✅ - CC-templates detection and version checking
-6. **Sync Script Updates** ✅ - Version-aware copying to ~/.claude
-7. **Testing & Validation** ✅ - Complete workflow testing and production validation
-
-### 🎯 PROJECT COMPLETE
-
-All core functionality implemented and tested. Ready for production use.
-
-## Current Tasks & Priorities
-
-### Immediate Tasks (Production Ready)
-
-- [x] **Test pre-commit hook**: Verified Claude analysis and version increments work correctly (v1.0.0 → v1.0.1)
-- [x] **Test sync script**: Confirmed version comparison and file copying works flawlessly
-- [x] **Test session detection**: Validated cc-templates vs regular project detection
-- [x] **Validate workflow**: Completed end-to-end testing of development → sync → project update flow
-
-### Quality Assurance Checklist
-
-- [x] Pre-commit hook handles all change types (major/minor/patch) correctly
-- [x] Session start hook detects cc-templates project reliably
-- [x] Sync script compares versions and copies files correctly
-- [x] Error handling works for missing files/permissions
-- [x] Documentation is complete and accurate
-
-### Next Release Priorities
-
-- [ ] **Release v1.1.0**: Tag current state as stable release
-- [ ] **README Updates**: Document new workflow for users
-- [ ] **Community Release**: Share with Claude Code community
-
-## Key Implementation Details
-
-### Pre-commit Hook Features
-- **Claude Analysis**: Uses `claude --headless` to analyze git diffs and determine version increments
-- **Fallback Logic**: Heuristic analysis if Claude unavailable
-- **Smart Parsing**: Handles commit messages, file changes, and diff content
-- **Single Commit**: Version increment included in same commit
-
-### Session Hook Intelligence
-- **Multi-factor Detection**: Directory name, templates/ folder, README content, script presence
-- **Version Checking**: Compares ~/.claude/.version vs project .claude/.version
-- **User Confirmation**: Asks before updating with clear version information
-- **Error Handling**: Graceful fallback for missing versions or files
-
-### Sync Script Robustness
-- **Version Comparison**: Semantic version parsing and comparison
-- **Backup System**: Automatic backup before overwriting
-- **Comprehensive Copying**: All template resources synced to proper ~/.claude locations
-- **Verification**: Post-sync validation of all copied resources
-
-## Success Metrics
-
-- ✅ **Clean Organization**: Template resources separated from project files
-- ✅ **Version Control**: Automated, intelligent version management
-- ✅ **Smart Distribution**: Version-aware syncing to global ~/.claude
-- ✅ **User Experience**: Clear project detection and update prompts
-- ✅ **Workflow Validation**: End-to-end testing completed and validated
-
-## Next Session Priorities
-
-1. **Release Management**: Tag v1.1.0 and prepare release notes
-2. **Documentation Enhancement**: Update README with complete workflow guide
-3. **Community Preparation**: Prepare for public release and user onboarding
-4. **Advanced Features**: Consider additional automation and workflow improvements
-
-The cc-templates reorganization and version management system is complete with intelligent automation, clean separation of concerns, and proven production workflow. All core functionality has been implemented and thoroughly tested.
+1. Update "Current Sprint Status" with a new session block (5-7 bullets max).
+2. Archive the previous session's block to `.claude/sessions/session-history.md` (newest entries at top).
+3. If `session-history.md` exceeds 10 entries, move the oldest to `.claude/sessions/session-history-archive.md`.
+4. Do NOT modify `AGENTS.md` — project context lives there and is stable across sessions.
+5. Keep this file under ~80 lines (sprint state + auto-update only).
