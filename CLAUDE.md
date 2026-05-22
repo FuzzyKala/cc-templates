@@ -19,7 +19,7 @@
 
 ### Next session start
 
-> Smoke-test `/wrap`, `/ready`, and `/setup-multi-agent` in a real working session. Audit `scripts/update-claude-global.sh` (still references v2 paths) and decide: update for v3 layout, or drop in favor of a simpler README-documented `cp -r templates/* <new-project>/` flow.
+> Smoke-test `/wrap` and `/ready` in a real working session. (`scripts/` audit is done — both scripts removed as v2-obsolete; preserved on `v2-archive`.) Consider whether `/setup-multi-agent` should auto-detect tech stack as an enhancement, salvaging detection patterns from `v2-archive:scripts/project-detection.sh`.
 
 ---
 

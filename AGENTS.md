@@ -143,14 +143,12 @@ cc-templates/
 │       └── setup-multi-agent/SKILL.md
 ├── docs/
 │   └── v3-multi-agent-rewrite-spec.md
-├── templates/
-│   ├── AGENTS.md.template
-│   ├── CLAUDE.md.template
-│   ├── GEMINI.md.template
-│   ├── gitignore-additions.txt
-│   └── setup-instructions.md
-└── scripts/
-    └── update-claude-global.sh   ← v2 sync helper; under audit
+└── templates/
+    ├── AGENTS.md.template
+    ├── CLAUDE.md.template
+    ├── GEMINI.md.template
+    ├── gitignore-additions.txt
+    └── setup-instructions.md
 ```
 
 ## Build, Test, and Development Commands
