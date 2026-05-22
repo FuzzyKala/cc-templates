@@ -1,0 +1,133 @@
+# Repository Guidelines
+
+> AGENTS.md is the canonical project context. It is loaded by Codex CLI natively, by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
+
+## Personal Working Agreement
+
+Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all three CLIs share the same expectations.
+
+1. **Plain language, no jargon.** Explain like you would to a smart non-specialist. If a technical term is unavoidable, define it inline the first time. No corporate-report tone, no unexplained acronyms, no walls of bullet points when a sentence will do.
+
+2. **English in artifacts, Chinese in chat.** Documents, specs, memory entries, agent prompts, commit messages, code comments → English. Conversation with me, LINE drafts, client-facing copy → 繁體中文. Files already in a mixed pattern (e.g. `CLAUDE.md`, session logs) keep that pattern.
+
+3. **Commit to a recommendation when listing options.** For any operational decision, do not just lay out 2-4 options and stop. Pick one, mark it as the recommendation, give the one-line reason, and invite the user to override. Bare option lists feel like dumping the decision back on the user.
+
+4. **Concrete examples over abstract framing.** Give URLs to react to, code snippets to compare, screenshots, or specific filenames — not category trees, abstract taxonomies, or "it depends" framings. If abstraction is unavoidable, ground it with at least one concrete instance.
+
+5. **Research first when work is non-trivial.** Complex, multi-step, cross-file, or outside-obvious-domain tasks → research with available tools (Explore, WebSearch, context7, Playwright, CLI utilities) BEFORE proposing a plan, spec, or brainstorm. Find out what current best practice is — do not rely on training-data memory for library behavior, API shapes, or "what's idiomatic now." Trivial work (typo, read-only lookup, single-file fix with clear scope) — just do it.
+
+6. **Ask when uncertain.** Ambiguous requirement, multiple reasonable paths, touching shared state, unclear blast radius → ask first. Do not start work until intent is clear. Trivial single-file changes with obvious intent do not need ceremony.
+
+7. **No fabrication, ever.** If not certain about a file path, function signature, library version, library behavior, or current state of the repo → verify (Read / grep / WebSearch / context7) before stating it. "I don't know, let me check" beats confident-sounding speculation. Memory recall is not ground truth — verify before acting on a recalled fact.
+
+## {{PROJECT_NAME}} Project Context
+
+### Client / Project Overview
+
+{{PROJECT_DESCRIPTION}}
+
+### Target Market / Audience
+
+{{TARGET_MARKET}}
+
+### Goals / MVP Requirements
+
+- TODO: Fill in 3-6 bullets describing what "done" looks like.
+
+### Design Decisions
+
+- TODO: Record locked-in decisions here as they are made (e.g., "Server Components everywhere except checkout form").
+
+### Tech Stack
+
+{{TECH_STACK_SUMMARY}}
+
+### Project Constraints
+
+{{KEY_CONSTRAINTS}}
+
+## Documentation Navigation
+
+### Core References
+
+- `AGENTS.md` (this file) — canonical project context, conventions, and tooling preferences.
+- `CLAUDE.md` — thin `@AGENTS.md` wrapper + Current Sprint Status (rolling sprint state).
+- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI.
+
+### AI Agent Rules
+
+The "Personal Working Agreement" section above governs every agent. Project-specific rules go in the "Project Context" section above.
+
+### Current Sprint State
+
+Sprint progress, today's blockers, what to pick up next — these live in `CLAUDE.md` under the `## Current Sprint Status` section. AGENTS.md does NOT change session-to-session; CLAUDE.md does.
+
+### Legacy
+
+If migrating from an older config, link the old README / handbook / wiki here.
+
+## AI Agent Workflow
+
+### Codex CLI Role
+
+Codex CLI loads this file natively (no `@import` needed). Use Codex for: precise diff-style edits, deterministic code transformations, when token budget is tight. Codex defaults to `gpt-5` as of 2026.
+
+### Gemini CLI Role
+
+Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Use Gemini for: long-context reads (large diffs, large file scans), Google Workspace integrations via `gws` CLI, multimodal (image / PDF) input. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
+
+## Tool Preference: CLI over MCP
+
+When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
+
+- **Token efficiency.** Benchmarks show ~17x fewer tokens per task for CLI vs MCP (Firecrawl / Arize, 2025).
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Gemini. MCP OAuth is per-agent.
+- **Reliability.** CLI flow is one process call; MCP adds a server hop.
+
+### Preferred CLIs
+
+| Service | Preferred CLI | Notes |
+|---|---|---|
+| GitHub | `gh` | Widely installed, mature. |
+| Google Workspace (Gmail / Calendar / Drive) | `gws` | Official Google CLI, pre-1.0 as of 2026-05. |
+| Google Drive bulk ops | `rclone` | Mature alternative to `gws` for large transfers. |
+| Notion | `ntn` | Official, young. |
+| Browser scripted flows | Playwright CLI | Mature; use Playwright Python for headless automation. |
+| JIRA | `acli` | Atlassian official, GA 2026. |
+
+### Stay on MCP (no viable CLI)
+
+- **Canva** — no design content management CLI.
+- **chrome-devtools** — interactive debug; the CLI surface is too thin.
+- **context7** — library docs lookup; the MCP is the primary interface.
+
+## Project Structure & Module Organization
+
+- TODO: List top-level directories and what lives in each, once the project has structure.
+
+## Build, Test, and Development Commands
+
+- TODO: Common commands. Example:
+  - `npm run dev` — local dev server
+  - `npm run build` — production build
+  - `npm test` — test suite
+  - `npm run lint` — lint check
+
+## Coding Style & Naming Conventions
+
+- TODO: Language version, formatter, naming patterns.
+
+## Testing Guidelines
+
+- TODO: Test runner, coverage expectations, where tests live.
+
+## Commit & Pull Request Guidelines
+
+- Commit subjects use conventional-commit-ish prefixes: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`.
+- Subject line ≤ 72 chars. Body wraps at ~80 cols.
+- One logical change per commit. If you can split it, split it.
+
+## Security & Configuration Tips
+
+- Never commit secrets. Use `.env.local` (gitignored) and document required env vars in a `.env.example`.
+- Verify the `.gitignore` excludes `.claude/*` (except `settings.json`), `.gemini/`, and `.agents/`. The `cc-templates` `gitignore-additions.txt` covers this.
