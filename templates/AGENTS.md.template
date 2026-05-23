@@ -89,19 +89,30 @@ PR flow, not direct push to `main`:
 
 ### Multi-CLI Parallel Workflow
 
-When running Codex and Gemini (or any 2+ CLIs) concurrently on the same repo, give each CLI its own worktree to avoid shared-state conflicts:
+When running Codex and Gemini (or any 2+ CLIs / instances) concurrently on the same repo, give each its own worktree to avoid shared-state conflicts:
 
 ```bash
-# Standard layout — run from inside the main worktree:
-git worktree add ../<project>-codex codex/<task-branch>
-git worktree add ../<project>-gemini gemini/<task-branch>
+# Standard layout — name worktrees by FUNCTION, not by model.
+# This survives multi-instance scenarios (e.g. 2 Geminis on different tasks):
+git worktree add ../<project>-<function-slug> <cli>/<task-branch>
+# Examples:
+git worktree add ../<project>-empty-states  gemini/redesign-empty-state
+git worktree add ../<project>-lint-fixes    codex/cleanup-imports
+git worktree add ../<project>-feature-x-ui  gemini/feature-x-ui
+git worktree add ../<project>-feature-x-api gemini/feature-x-api  # second Gemini, distinct dir
 ```
+
+Branch name still encodes the CLI (`<cli>/<task-slug>` per Branch & Push Rules), so the worktree directory shows *what* is being worked on while the branch tells *who*.
 
 Then launch each CLI in its own directory. The main worktree (`<project>/`) stays reserved for Claude (orchestration, review, merge, post-merge deploy).
 
-**Why:** When CLIs share a worktree, one CLI switching branches under the other causes "stale `M file`" panic and stalls execution. Worktrees share git history but each has its own working tree state.
+**Why function-based naming:** When a user wants to run 2 Geminis (or 2 Codex instances) on different tasks, model-based naming (`-gemini` / `-gemini-2`) is ambiguous; function-based naming (`-feature-x-ui` / `-feature-x-api`) makes the parent directory listing self-documenting.
 
-Single-agent rounds (only one CLI at a time) don't need worktree isolation.
+**Why worktrees at all:** When CLIs share a single worktree, one CLI switching branches under the other causes "stale `M file`" panic and stalls execution. Worktrees share git history but each has its own working tree state.
+
+**Cleanup after merge:** `git worktree remove ../<project>-<function-slug>` once the PR is merged. Don't accumulate stale worktrees.
+
+Single-agent rounds (only one CLI at a time) don't need worktree isolation — just use the main worktree.
 
 **Orchestration brief rule (Claude side):** When writing a delegation brief for Codex or Gemini, the brief's ship section ends at "open PR, wait for review". Do NOT include a deploy command in the brief — let AGENTS.md's "agents don't deploy" rule (above) be canonical. Brief-level deploy instructions risk causing the agent to deploy from its feature branch, creating a branch→prod desync window.
 

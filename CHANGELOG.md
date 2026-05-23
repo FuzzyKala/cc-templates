@@ -2,6 +2,18 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.0] — 2026-05-23
+
+### Changed
+
+- `templates/AGENTS.md.template` Multi-CLI Parallel Workflow section — worktree directory naming convention switched from model-based (`<project>-codex` / `<project>-gemini`) to function-based (`<project>-<function-slug>`). Branch name still encodes the CLI (`<cli>/<task-slug>`), so the worktree dir shows *what* is being worked on while the branch tells *who*. Examples expanded to cover the multi-instance case (e.g. 2 Geminis on different tasks). Added explicit cleanup guidance (`git worktree remove ../<project>-<function-slug>` post-merge).
+
+### Rationale
+
+Downstream jsdesign trial (S224, 2026-05-23) needed to plan a Phase A delegation involving potentially multiple Gemini instances (Codex quota constraint pushed user toward multi-Gemini parallel work). Model-based naming `<project>-gemini` can't host 2 Geminis concurrently — second instance would conflict on directory name. Function-based naming generalizes to any multi-instance case (multi-Codex, multi-Gemini, mixed) without ambiguity.
+
+No breaking change: downstream consumers who already created `<project>-codex` / `<project>-gemini` worktrees can keep them; only new worktrees follow the function-based convention. Branch & Push Rules unaffected.
+
 ## [v3.3.0] — 2026-05-22
 
 ### Added
