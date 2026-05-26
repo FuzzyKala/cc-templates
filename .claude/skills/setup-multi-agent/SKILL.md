@@ -67,8 +67,13 @@ claude --print 'Without using any tools, just from your loaded context: does it 
 # GEMINI_CLI_TRUST_WORKSPACE=true is required for Gemini CLI headless mode (-p flag):
 GEMINI_CLI_TRUST_WORKSPACE=true gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
 
-# Codex CLI reads AGENTS.md natively (no wrapper needed):
-codex exec 'What is this repo about?'
+# Codex CLI reads AGENTS.md natively (no wrapper needed). NOTE: Codex is an
+# agent loop and will read files unless explicitly told not to. The prompt
+# below asks for a verbatim quote from loaded context; if Codex answers
+# without running shell commands, native auto-load is confirmed. If it ran
+# `sed`/`cat`/`grep` on AGENTS.md first, that only confirms AGENTS.md exists
+# and Codex can find it — NOT that it was auto-loaded into context:
+codex exec 'Without running any shell commands or reading any files, answer purely from your loaded AGENTS.md context: does it contain a section titled "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 ```
 
 If any of the three CLIs is not installed, mention which and link the user to:
