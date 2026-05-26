@@ -54,7 +54,7 @@ Solo developers and small teams who use more than one coding CLI (e.g., Claude C
 
 ### Tech Stack
 
-Plain Markdown + git + Bash. The `.git/hooks/pre-commit` hook is Bash and auto-increments `.version` when `templates/` changes (heuristic-based; calls `claude --headless` opportunistically but falls back gracefully). No npm, no node, no Python deps at runtime.
+Plain Markdown + git + Bash. `.version` is managed manually in dedicated commits, separate from template edits. No npm, no node, no Python deps at runtime.
 
 ### Project Constraints
 
@@ -156,7 +156,6 @@ cc-templates/
 There is no build step. To test changes:
 
 - `cat templates/AGENTS.md.template` — verify placeholders are intact.
-- `bash -n .git/hooks/pre-commit` — syntax-check the pre-commit hook before committing changes to it.
 - For a smoke test of the bootstrap flow, copy `templates/*` into a scratch directory and run the verification commands from `templates/setup-instructions.md`.
 
 ## Coding Style & Naming Conventions
@@ -175,10 +174,10 @@ Manual until automated tests are added. The acceptance criteria per phase live i
 - Commit subjects use conventional prefixes: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`.
 - For v3-era spec-driven commits, the v3 phases use `feat(v3): phase N — <summary>`.
 - Subject line ≤ 72 chars. Body wraps at ~80 cols.
-- The pre-commit hook auto-bumps `.version` when `templates/` is touched (Bash heuristic with optional `claude --headless` analysis). For intentional major bumps (e.g., next v3.x → v4.0.0), set `.version` in a separate commit that does NOT touch `templates/`.
+- `.version` is bumped manually in a dedicated commit that touches only `.version` and `CHANGELOG.md` (no `templates/` edits in the same commit). Use SemVer: breaking change → major, new feature → minor, fix → patch.
 
 ## Security & Configuration Tips
 
 - No secrets in this repo. `.env` patterns are still in `.gitignore` defensively.
-- The pre-commit hook calls `claude` if installed. If you don't want that, set `command -v claude` to be unfindable in your PATH, or remove `.git/hooks/pre-commit`.
+- Existing clones that still have the old local hook can remove it with `rm .git/hooks/pre-commit`.
 - `.claude/*` is gitignored except `settings.json` and `skills/` — keeps personal session data (history.jsonl, ide/, etc.) out of git while still letting `skills/` be shipped.

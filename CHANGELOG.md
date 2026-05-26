@@ -2,6 +2,16 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.5.0] — 2026-05-26
+
+### Changed
+
+- **Policy change:** removed auto-bump of `.version` via pre-commit hook. `.version` is now bumped manually in dedicated commits.
+
+### Rationale
+
+Hook heuristic misclassified at least 3 times (see commits `9a16643`, `85766f5`, `4cdef5d`). Existing clones can remove the local hook with `rm .git/hooks/pre-commit`.
+
 ## [v3.4.0] — 2026-05-23
 
 ### Changed
