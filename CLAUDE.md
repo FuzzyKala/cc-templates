@@ -27,11 +27,10 @@
 
 2. **Acceptable drift — global rule 7 vs cct mirrors.** Global `~/.claude/CLAUDE.md` rule 7 was updated 2026-05-22 to add a "keep critical thinking" clause. The Personal Working Agreement mirror in `AGENTS.md` (cct dogfood) + `templates/AGENTS.md.template` still has the old rule 7 wording. Sync next time you naturally touch either file; do not make a separate commit just for this.
 
-3. **`/setup-multi-agent` user-global install pattern — README documentation gap.** Cct v3 README does NOT explicitly document how to install skills user-globally so they are invocable from any project (not just from inside cct). The S220 e2e test verified that **`ln -s <cct-repo>/.claude/skills/<name> ~/.claude/skills/<name>` works** (Claude Code follows symlinks for skill discovery). Add a "Skill installation" section to README between "Quick start" and "Architecture" that shows the symlink install pattern. Recommended copy: `mkdir -p ~/.claude/skills && for s in wrap ready setup-multi-agent; do ln -s "$(pwd)/.claude/skills/$s" ~/.claude/skills/$s; done` (after cloning cct).
-
 ### Recently resolved follow-ups
 
 - **`.version` SemVer anomaly — auto-bump policy.** Closed 2026-05-26 — removed auto-bump policy per PR #3 (Codex). `.version` now manual.
+- **`/setup-multi-agent` README documentation gap.** Closed 2026-05-26 — README "Skill installation" section added between Quick start and Architecture per PR #2 (Gemini).
 
 ---
 
