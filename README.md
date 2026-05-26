@@ -62,6 +62,29 @@ codex exec 'What is this repo about?'
 
 All three should reference your filled-in `AGENTS.md`.
 
+## Skill installation
+
+The cct repo ships three Claude Code skills under `.claude/skills/`:
+
+- `/wrap` — session-end recap that updates CLAUDE.md
+- `/ready` — session-start project context scan
+- `/setup-multi-agent` — bootstrap a new project with multi-CLI config files
+
+By default these are only invocable from inside the cct repo. To make them available from any project, symlink them into your user-global Claude Code skills directory:
+
+```bash
+mkdir -p ~/.claude/skills && \
+  for s in wrap ready setup-multi-agent; do
+    ln -s "$(pwd)/.claude/skills/$s" ~/.claude/skills/$s
+  done
+```
+
+(Run from the cct repo root so `$(pwd)` resolves correctly.)
+
+Claude Code follows symlinks during skill discovery, so updates to the cct repo are picked up automatically — no re-install needed.
+
+**Note:** This pattern only works for Claude Code. Codex CLI and Gemini CLI use different skill mechanisms and are not affected.
+
 ## Architecture
 
 ```
