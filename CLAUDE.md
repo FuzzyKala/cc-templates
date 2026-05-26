@@ -23,12 +23,11 @@
 
 **Carried follow-ups from S220 jsdesign cross-project e2e test (2026-05-22):**
 
-1. **`/setup-multi-agent` skill — template path discovery hardening.** During S220 fresh-terminal e2e test, the skill's first `Bash` call assumed `templates/` lived at `/home/kala/.claude/skills/setup-multi-agent/templates/` (next to the skill file itself) — that path does not exist; templates live in the cc-templates repo at `templates/`. The skill recovered via a second Bash call to the correct path, so the e2e succeeded, but the first call wasted a tool turn + exit code 2 noise. Fix: in `.claude/skills/setup-multi-agent/SKILL.md` step 2 ("Sanity-check / locate templates"), resolve the skill's own SKILL.md location, follow symlinks if present (via `readlink -f` or shell equivalent), then derive the cct repo root as `<resolved>/../../..` and look for `templates/` there. This makes the skill robust whether invoked from a symlinked install (`~/.claude/skills/setup-multi-agent` → `<cct-repo>/.claude/skills/setup-multi-agent/`) or directly inside cct. Empirical verification on 2026-05-22: Claude Code DOES follow symlinks for skill discovery (confirmed S220 test), so the readlink-resolve-then-up-three-dirs pattern works.
-
-2. **Acceptable drift — global rule 7 vs cct mirrors.** Global `~/.claude/CLAUDE.md` rule 7 was updated 2026-05-22 to add a "keep critical thinking" clause. The Personal Working Agreement mirror in `AGENTS.md` (cct dogfood) + `templates/AGENTS.md.template` still has the old rule 7 wording. Sync next time you naturally touch either file; do not make a separate commit just for this.
+1. **Acceptable drift — global rule 7 vs cct mirrors.** Global `~/.claude/CLAUDE.md` rule 7 was updated 2026-05-22 to add a "keep critical thinking" clause. The Personal Working Agreement mirror in `AGENTS.md` (cct dogfood) + `templates/AGENTS.md.template` still has the old rule 7 wording. Sync next time you naturally touch either file; do not make a separate commit just for this.
 
 ### Recently resolved follow-ups
 
+- **`/setup-multi-agent` template path discovery hardening.** Closed 2026-05-26 — added Step 0 to `SKILL.md` that resolves the skill's own base directory via `readlink -f` and ascends three levels to derive `<cct-repo>/templates/`, with explicit four-file existence check. Steps 3 and 4 now reference the resolved `${TEMPLATES_DIR}`. Fixes the wasted first `Bash` call observed in S220's fresh-terminal e2e test.
 - **`.version` SemVer anomaly — auto-bump policy.** Closed 2026-05-26 — removed auto-bump policy per PR #3 (Codex). `.version` now manual.
 - **`/setup-multi-agent` README documentation gap.** Closed 2026-05-26 — README "Skill installation" section added between Quick start and Architecture per PR #2 (Gemini).
 
