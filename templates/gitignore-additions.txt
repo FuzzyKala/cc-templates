@@ -13,8 +13,12 @@
 # so this path stays gitignored beyond Gemini sunset.
 .gemini/
 
-# Antigravity CLI project-local cache (defensive — agy currently uses ~/.gemini/ for user-level state)
+# Antigravity CLI per-project state
+# agy creates .antigravitycli/<project-uuid>.json symlinked into ~/.gemini/config/projects/
+# (verified in anchor S73 / 2026-05-27 — see anchor memory reference-antigravity-cli-install).
+# Defensive .agy/ + .antigravity/ also gitignored in case future agy versions change layout.
 .agy/
 .antigravity/
+.antigravitycli/
 
 # --- end cc-templates additions ---

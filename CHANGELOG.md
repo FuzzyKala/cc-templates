@@ -2,6 +2,40 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.7.0] — 2026-05-27
+
+### Added
+
+- **`templates/gitignore-additions.txt`:** add `.antigravitycli/` entry. This is the per-project state directory Antigravity CLI (`agy`) actually creates (verified in anchor S73, see anchor memory `reference-antigravity-cli-install`); defensive `.agy/` + `.antigravity/` entries from v3.6.0 also retained.
+
+### Notes
+
+- This is a v3.6.0 follow-up — the gitignore-additions safety net was incomplete in the migration commit. No template or template-text behavior change.
+- The pre-commit hook that v3.5.0 announced as removed is still firing locally and auto-bumped this commit (v3.6.0 → v3.7.0). The policy gap (doc says manual, hook still automated) is real cct internal hygiene work and will be addressed in a separate session.
+
+## [v3.6.0] — 2026-05-27
+
+### Changed
+
+- **Gemini CLI → Antigravity CLI migration across templates + dogfood docs.** Google announced 2026-05-19 that Gemini CLI free tier sunsets 2026-06-18, replaced by Antigravity CLI (`agy`). Reposition Antigravity as the canonical third agent across `README.md`, `AGENTS.md` (dogfood), `templates/AGENTS.md.template`, `templates/setup-instructions.md`, and `templates/gitignore-additions.txt`.
+- **`### Gemini CLI Role`** template section renamed to **`### Antigravity CLI Role`** with a new **`### Gemini CLI Role (legacy — sunsets 2026-06-18)`** section retained for the transition window.
+- **Branch examples** updated from `gemini/<task-slug>` to `agy/<task-slug>` across the Multi-CLI Parallel Workflow section.
+- **Personal Working Agreement rule 7** synced to the current global `~/.claude/CLAUDE.md` wording ("no fabrication, and keep critical thinking; verification not validation"). Closes the carried follow-up tracked in `CLAUDE.md` since 2026-05-22.
+- **`templates/gitignore-additions.txt`:** updated the `.gemini/` comment to note legacy + retention rationale (agy uses `~/.gemini/antigravity-cli/`). Added defensive `.agy/` + `.antigravity/` entries. (`.antigravitycli/` added separately in v3.7.0 follow-up.)
+
+### Added
+
+- **Anti-pattern guard for delegated CLIs** in the Multi-CLI Parallel Workflow section of `templates/AGENTS.md.template`: do NOT remove a worktree you were assigned to, do NOT switch the main worktree's branch, and do NOT skip opening a PR. Surface blockers back to Claude / user instead of self-recovering destructively. Sourced from anchor session 77 / 2026-05-27 incident (anchor memory `gemini-destructive-worktree-manipulation`).
+- **Antigravity CLI transition link** added to the `### References` section of `README.md` ([Google announcement 2026-05-19](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/)).
+
+### Rationale
+
+Downstream projects (anchor + jsdesign-landing-page) ran agy through a 2/N trial: PR #11 host-header-redirect security fix (anchor S73) + PR #12 Callout component creation (anchor S77). Two distinct task shapes, zero incidents, free-tier quota survived two ships across 6 days. anchor session 78 (2026-05-27) committed to full migration; cct templates land the cross-project pattern so new bootstraps inherit the new arrangement automatically.
+
+### Not changed
+
+`GEMINI.md.template` is retained for the 22-day transition window — projects still on Gemini through 6/18 can continue bootstrapping via `cc-templates` without breaking. Full removal of `GEMINI.md.template` will follow Gemini's sunset.
+
 ## [v3.5.0] — 2026-05-26
 
 ### Changed
