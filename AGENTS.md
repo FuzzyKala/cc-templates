@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-> AGENTS.md is the canonical project context for cc-templates. It is loaded by Codex CLI natively, by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
+> AGENTS.md is the canonical project context for cc-templates. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI (legacy, sunsets 2026-06-18) via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
 
 ## Personal Working Agreement
 
-Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all three CLIs share the same expectations.
+Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
 
 1. **Plain language, no jargon.** Explain like you would to a smart non-specialist. If a technical term is unavoidable, define it inline the first time. No corporate-report tone, no unexplained acronyms, no walls of bullet points when a sentence will do.
 
@@ -18,7 +18,7 @@ Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. 
 
 6. **Ask when uncertain.** Ambiguous requirement, multiple reasonable paths, touching shared state, unclear blast radius → ask first. Do not start work until intent is clear. Trivial single-file changes with obvious intent do not need ceremony.
 
-7. **No fabrication, ever.** If not certain about a file path, function signature, library version, library behavior, or current state of the repo → verify (Read / grep / WebSearch / context7) before stating it. "I don't know, let me check" beats confident-sounding speculation. Memory recall is not ground truth — verify before acting on a recalled fact.
+7. **No fabrication, and keep critical thinking.** If not certain about a file path, function signature, library version, library behavior, or current state of the repo → verify (Read / grep / WebSearch / context7 / chrome-devtools) before stating it. "I don't know, let me check" beats confident-sounding speculation. Memory recall is not ground truth — verify before acting on a recalled fact. Beyond fact-level honesty: actively hunt for issues, gaps, and wrong framings — don't just confirm the user's direction. Push back when you see a problem, even if inconvenient. Verification not validation, especially when reviewing your own or another agent's work.
 
 ## cc-templates Project Context
 
@@ -35,7 +35,7 @@ The repo is also the first user of its own templates — its own root has `AGENT
 
 ### Target Audience
 
-Solo developers and small teams who use more than one coding CLI (e.g., Claude Code + Codex CLI, or Claude Code + Gemini CLI) and want consistent project context loaded across all of them without maintaining duplicate config files.
+Solo developers and small teams who use more than one coding CLI (e.g., Claude Code + Codex CLI, Claude Code + Antigravity CLI, or any combination of three CLIs) and want consistent project context loaded across all of them without maintaining duplicate config files.
 
 ### Goals (v3.0.0)
 
@@ -50,7 +50,7 @@ Solo developers and small teams who use more than one coding CLI (e.g., Claude C
 - **Skills, not commands.** New slash-invocable behavior is authored as `.claude/skills/<name>/SKILL.md` per <https://code.claude.com/docs/en/skills>. v2's `commands/*.md` were migrated.
 - **`/wrap`, not `/recap`.** Claude Code v2.1.108+ ships a built-in `/recap` (one-line synopsis) that cannot be overridden. The session-end full-recap behavior gets a different name.
 - **GEMINI.md is a real file, not a symlink.** Gemini CLI does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21).
-- **Keep `cc-templates` repo name.** The `agents-md-*` namespace is crowded on GitHub as of 2026-05. The "cc" prefix can be read as "Coding CLI" (covers Claude Code / Codex CLI / Gemini CLI).
+- **Keep `cc-templates` repo name.** The `agents-md-*` namespace is crowded on GitHub as of 2026-05. The "cc" prefix can be read as "Coding CLI" (covers Claude Code / Codex CLI / Antigravity CLI / Gemini CLI).
 
 ### Tech Stack
 
@@ -69,7 +69,7 @@ Plain Markdown + git + Bash. `.version` is managed manually in dedicated commits
 
 - `AGENTS.md` (this file) — canonical project context, conventions, and tooling preferences.
 - `CLAUDE.md` — thin `@AGENTS.md` wrapper + Current Sprint Status.
-- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI.
+- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI (legacy, sunsets 2026-06-18).
 - `README.md` — user-facing readme; multi-CLI framing and quick start.
 - `CHANGELOG.md` — release history (Keep a Changelog format).
 
@@ -95,16 +95,20 @@ The v2 architecture ("Claude Code Multi-Agent Coordination System" with 5 intern
 
 Codex CLI loads this file natively. Use Codex for: precise diff-style edits to skills or templates, deterministic Markdown reformatting, token-budget-sensitive work.
 
-### Gemini CLI Role
+### Antigravity CLI Role
 
-Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Use Gemini for: long-context reads (e.g., scanning the whole `v2-archive` for a buried convention), multimodal review of screenshots in spec drafts.
+Antigravity CLI (`agy`) loads this file natively (no `@import` needed, same as Codex). Use Antigravity for: long-context reads (e.g., scanning the whole `v2-archive` for a buried convention), multimodal review of screenshots in spec drafts, well-specified sub-tasks where ~5 prompt constraints fully define the work.
+
+### Gemini CLI Role (legacy — sunsets 2026-06-18)
+
+Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Free tier deprecates 2026-06-18 per [Google announcement](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) — migrate to Antigravity CLI before deadline. Until then, same role-fit as Antigravity.
 
 ## Tool Preference: CLI over MCP
 
 When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 
 - **Token efficiency.** Benchmarks (Firecrawl / Arize, 2025) show ~17x fewer tokens per task for CLI vs MCP at 10k ops/month — 1.3-8.7k tokens (CLI) vs 32-82k tokens (MCP).
-- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Gemini. MCP OAuth is per-agent.
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity / Gemini. MCP OAuth is per-agent.
 - **Reliability.** CLI flow is one process call; MCP adds a server hop.
 
 ### Preferred CLIs
@@ -167,7 +171,7 @@ There is no build step. To test changes:
 
 ## Testing Guidelines
 
-Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `GEMINI_CLI_TRUST_WORKSPACE=true gemini -p`, and `codex exec` per the README and `templates/setup-instructions.md`.
+Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `codex exec`, `agy` (Antigravity CLI), and `GEMINI_CLI_TRUST_WORKSPACE=true gemini -p` (legacy, until 2026-06-18) per the README and `templates/setup-instructions.md`.
 
 ## Commit & Pull Request Guidelines
 

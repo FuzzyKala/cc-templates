@@ -21,11 +21,10 @@
 
 > Smoke-test `/wrap` and `/ready` in a real working session. (`scripts/` audit is done — both scripts removed as v2-obsolete; preserved on `v2-archive`.) Consider whether `/setup-multi-agent` should auto-detect tech stack as an enhancement, salvaging detection patterns from `v2-archive:scripts/project-detection.sh`.
 
-**Carried follow-ups from S220 jsdesign cross-project e2e test (2026-05-22):**
-
-1. **Acceptable drift — global rule 7 vs cct mirrors.** Global `~/.claude/CLAUDE.md` rule 7 was updated 2026-05-22 to add a "keep critical thinking" clause. The Personal Working Agreement mirror in `AGENTS.md` (cct dogfood) + `templates/AGENTS.md.template` still has the old rule 7 wording. Sync next time you naturally touch either file; do not make a separate commit just for this.
-
 ### Recently resolved follow-ups
+
+- **Global rule 7 sync — Personal Working Agreement mirrors.** Closed 2026-05-27 — `AGENTS.md` (cct dogfood) + `templates/AGENTS.md.template` now carry the "no fabrication, and keep critical thinking" rule 7 wording matching global `~/.claude/CLAUDE.md`. Synced naturally during the Gemini → Antigravity CLI migration commit.
+- **Gemini CLI → Antigravity CLI migration.** Closed 2026-05-27 — Google announced Gemini CLI free-tier sunset for 2026-06-18 (announcement 2026-05-19, see <https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/>). Templates and dogfood docs updated to lead with Antigravity CLI (`agy`) as the canonical third agent; Gemini CLI remains documented as legacy for the 22-day transition window. `GEMINI.md` template still ships until sunset.
 
 - **`/setup-multi-agent` template path discovery hardening.** Closed 2026-05-26 — added Step 0 to `SKILL.md` that resolves the skill's own base directory via `readlink -f` and ascends three levels to derive `<cct-repo>/templates/`, with explicit four-file existence check. Steps 3 and 4 now reference the resolved `${TEMPLATES_DIR}`. Fixes the wasted first `Bash` call observed in S220's fresh-terminal e2e test.
 - **`.version` SemVer anomaly — auto-bump policy.** Closed 2026-05-26 — removed auto-bump policy per PR #3 (Codex). `.version` now manual.

@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-> AGENTS.md is the canonical project context. It is loaded by Codex CLI natively, by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
+> AGENTS.md is the canonical project context. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI (legacy, sunsets 2026-06-18) via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
 
 ## Personal Working Agreement
 
-Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all three CLIs share the same expectations.
+Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
 
 1. **Plain language, no jargon.** Explain like you would to a smart non-specialist. If a technical term is unavoidable, define it inline the first time. No corporate-report tone, no unexplained acronyms, no walls of bullet points when a sentence will do.
 
@@ -18,7 +18,7 @@ Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. 
 
 6. **Ask when uncertain.** Ambiguous requirement, multiple reasonable paths, touching shared state, unclear blast radius → ask first. Do not start work until intent is clear. Trivial single-file changes with obvious intent do not need ceremony.
 
-7. **No fabrication, ever.** If not certain about a file path, function signature, library version, library behavior, or current state of the repo → verify (Read / grep / WebSearch / context7) before stating it. "I don't know, let me check" beats confident-sounding speculation. Memory recall is not ground truth — verify before acting on a recalled fact.
+7. **No fabrication, and keep critical thinking.** If not certain about a file path, function signature, library version, library behavior, or current state of the repo → verify (Read / grep / WebSearch / context7 / chrome-devtools) before stating it. "I don't know, let me check" beats confident-sounding speculation. Memory recall is not ground truth — verify before acting on a recalled fact. Beyond fact-level honesty: actively hunt for issues, gaps, and wrong framings — don't just confirm the user's direction. Push back when you see a problem, even if inconvenient. Verification not validation, especially when reviewing your own or another agent's work.
 
 ## {{PROJECT_NAME}} Project Context
 
@@ -52,7 +52,7 @@ Rules that apply to every agent (Claude / Codex / Gemini) working in this repo. 
 
 - `AGENTS.md` (this file) — canonical project context, conventions, and tooling preferences.
 - `CLAUDE.md` — thin `@AGENTS.md` wrapper + Current Sprint Status (rolling sprint state).
-- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI.
+- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI (legacy, sunsets 2026-06-18).
 
 ### AI Agent Rules
 
@@ -72,41 +72,45 @@ If migrating from an older config, link the old README / handbook / wiki here.
 
 Codex CLI loads this file natively (no `@import` needed). Defaults to `gpt-5` as of 2026. Good fit: precise diff-style edits, deterministic code transformations, well-specified sub-tasks where ~5 prompt constraints fully define the work.
 
-### Gemini CLI Role
+### Antigravity CLI Role
 
-Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Good fit: long-context reads (large diffs / file scans), Google Workspace via `gws` CLI, multimodal (image / PDF) input, small-scoped bugfixes with clear acceptance tests. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
+Antigravity CLI (`agy`) loads this file natively (no `@import` needed, same as Codex). Replaces Gemini CLI per Google's 2026-05-19 announcement; Antigravity is built in Go, free-tier quota refreshes every 5h. Good fit: long-context reads (large diffs / file scans), Google Workspace via `gws` CLI, multimodal (image / PDF) input, well-specified sub-tasks with clear acceptance tests.
+
+### Gemini CLI Role (legacy — sunsets 2026-06-18)
+
+Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Free tier deprecates 2026-06-18 per [Google announcement](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) — migrate to Antigravity CLI before the deadline. Until then, same role-fit as Antigravity. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
 
 ### Branch & Push Rules (applies to all delegated CLIs)
 
 PR flow, not direct push to `main`:
 
-1. Agent works on a feature branch named `<cli>/<task-slug>` (e.g. `codex/cleanup-imports`, `gemini/redesign-empty-state`).
+1. Agent works on a feature branch named `<cli>/<task-slug>` (e.g. `codex/cleanup-imports`, `agy/redesign-empty-state`).
 2. Before committing, agent runs and confirms green: typecheck + lint commands defined in "Build, Test, and Development Commands" below. For DB-touching work, also run any DB verification command.
-3. Commit using conventional style (`feat(scope): ...`, `fix(scope): ...`, etc.) with `Co-Authored-By: <CLI> <noreply@<vendor>.com>` trailer (`<noreply@openai.com>` for Codex, `<noreply@google.com>` for Gemini).
+3. Commit using conventional style (`feat(scope): ...`, `fix(scope): ...`, etc.) with `Co-Authored-By: <CLI> <noreply@<vendor>.com>` trailer (`<noreply@openai.com>` for Codex, `<noreply@google.com>` for Antigravity CLI, `<noreply@google.com>` for Gemini CLI until sunset).
 4. Push the branch to origin and open a PR against `main`. Title = the conventional commit title. Body = what changed, what was tested, what the spec said.
 5. Do **NOT** self-merge. Wait for human review (or Claude orchestrator in multi-CLI setup).
 6. **Do NOT deploy from a feature branch.** Deploys happen post-merge from `main`, by the user or by Claude as orchestrator. Branch-deploy causes `main` ↔ prod desync (any later main-deploy reverts the agent's work).
 
 ### Multi-CLI Parallel Workflow
 
-When running Codex and Gemini (or any 2+ CLIs / instances) concurrently on the same repo, give each its own worktree to avoid shared-state conflicts:
+When running Codex and Antigravity (or any 2+ CLIs / instances) concurrently on the same repo, give each its own worktree to avoid shared-state conflicts:
 
 ```bash
 # Standard layout — name worktrees by FUNCTION, not by model.
-# This survives multi-instance scenarios (e.g. 2 Geminis on different tasks):
+# This survives multi-instance scenarios (e.g. 2 Antigravity instances on different tasks):
 git worktree add ../<project>-<function-slug> <cli>/<task-branch>
 # Examples:
-git worktree add ../<project>-empty-states  gemini/redesign-empty-state
+git worktree add ../<project>-empty-states  agy/redesign-empty-state
 git worktree add ../<project>-lint-fixes    codex/cleanup-imports
-git worktree add ../<project>-feature-x-ui  gemini/feature-x-ui
-git worktree add ../<project>-feature-x-api gemini/feature-x-api  # second Gemini, distinct dir
+git worktree add ../<project>-feature-x-ui  agy/feature-x-ui
+git worktree add ../<project>-feature-x-api agy/feature-x-api  # second agy instance, distinct dir
 ```
 
 Branch name still encodes the CLI (`<cli>/<task-slug>` per Branch & Push Rules), so the worktree directory shows *what* is being worked on while the branch tells *who*.
 
 Then launch each CLI in its own directory. The main worktree (`<project>/`) stays reserved for Claude (orchestration, review, merge, post-merge deploy).
 
-**Why function-based naming:** When a user wants to run 2 Geminis (or 2 Codex instances) on different tasks, model-based naming (`-gemini` / `-gemini-2`) is ambiguous; function-based naming (`-feature-x-ui` / `-feature-x-api`) makes the parent directory listing self-documenting.
+**Why function-based naming:** When a user wants to run 2 Antigravity instances (or 2 Codex instances) on different tasks, model-based naming (`-agy` / `-agy-2`) is ambiguous; function-based naming (`-feature-x-ui` / `-feature-x-api`) makes the parent directory listing self-documenting.
 
 **Why worktrees at all:** When CLIs share a single worktree, one CLI switching branches under the other causes "stale `M file`" panic and stalls execution. Worktrees share git history but each has its own working tree state.
 
@@ -114,7 +118,9 @@ Then launch each CLI in its own directory. The main worktree (`<project>/`) stay
 
 Single-agent rounds (only one CLI at a time) don't need worktree isolation — just use the main worktree.
 
-**Orchestration brief rule (Claude side):** When writing a delegation brief for Codex or Gemini, the brief's ship section ends at "open PR, wait for review". Do NOT include a deploy command in the brief — let AGENTS.md's "agents don't deploy" rule (above) be canonical. Brief-level deploy instructions risk causing the agent to deploy from its feature branch, creating a branch→prod desync window.
+**Orchestration brief rule (Claude side):** When writing a delegation brief for Codex, Antigravity, or any delegated CLI, the brief's ship section ends at "open PR, wait for review". Do NOT include a deploy command in the brief — let AGENTS.md's "agents don't deploy" rule (above) be canonical. Brief-level deploy instructions risk causing the agent to deploy from its feature branch, creating a branch→prod desync window.
+
+**Anti-pattern guard for delegated CLIs:** Do NOT remove a worktree you were assigned to, do NOT switch the main worktree's branch, and do NOT skip opening a PR even if the local branch is in an unexpected state. Surface the blocker back to Claude / the user instead of self-recovering destructively. (Observed incident logged in anchor session 77 / 2026-05-27.)
 
 **Dispatch pattern (Claude side, optional but recommended):** To reduce copy-paste during multi-CLI rounds, Claude writes each delegation brief to a file (suggested path: `<briefs-dir>/<cli>-current.md`, e.g. `_bmad-output/briefs/codex-current.md`). User dispatches with one line: "read that path and follow it". When the agent finishes, user reports only the branch name (e.g. "done, branch `codex/cleanup-imports`") — Claude inspects via `gh pr view` / `git diff origin/<branch>` rather than expecting the agent's chat transcript.
 
@@ -123,7 +129,7 @@ Single-agent rounds (only one CLI at a time) don't need worktree isolation — j
 When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 
 - **Token efficiency.** Benchmarks show ~17x fewer tokens per task for CLI vs MCP (Firecrawl / Arize, 2025).
-- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Gemini. MCP OAuth is per-agent.
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity / Gemini. MCP OAuth is per-agent.
 - **Reliability.** CLI flow is one process call; MCP adds a server hop.
 
 **Preferred CLIs** (install status defaults to `⏳ not installed`; bootstrap user should run `command -v <tool>` per their machine and update to `✓ installed` where applicable):
@@ -137,7 +143,7 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 | Browser scripted flows | Playwright CLI | ⏳ not installed | Mature; use Playwright Python for headless automation. |
 | JIRA | `acli` | ⏳ not installed | Atlassian official, GA 2026. |
 
-**Important for sub-agent prompts:** When delegating a task that requires a CLI tool, check this matrix's install status FIRST. For `⏳ not installed`, do one of: (a) ask the user to install before delegating, (b) fall back to the corresponding MCP if available, or (c) use a closer-fit alternative. Do NOT prompt sub-agents (Codex / Gemini) to invoke a tool listed as `⏳ not installed` — they will fail silently or hallucinate output.
+**Important for sub-agent prompts:** When delegating a task that requires a CLI tool, check this matrix's install status FIRST. For `⏳ not installed`, do one of: (a) ask the user to install before delegating, (b) fall back to the corresponding MCP if available, or (c) use a closer-fit alternative. Do NOT prompt sub-agents (Codex / Antigravity / Gemini) to invoke a tool listed as `⏳ not installed` — they will fail silently or hallucinate output.
 
 ### Stay on MCP (no viable CLI)
 
