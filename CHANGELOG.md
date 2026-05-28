@@ -2,6 +2,22 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.8.0] — 2026-05-29
+
+### Added
+
+- **`templates/deferred-work.md.template`** — new optional template. Active-backlog scaffold with a Dashboard index table at the top (D-N / Severity / Module / Title) plus the chronological body convention. For BMad-style spec-driven projects.
+- **`templates/deferred-work-archive.md.template`** — new optional template. Sibling archive for shipped / resolved entries cut from `deferred-work.md` at ship time. HTML anchors preserve cross-reference IDs.
+- **`templates/SPEC-INDEX.md.template`** — new optional template. Directory index for spec corpora, populated from spec `status:` + `title:` frontmatter. Non-done specs sorted first.
+- **`templates/AGENTS.md.template` `## Document Conventions` section** — codifies the progressive-disclosure rule (Dashboard at top, body unchanged, archive split at ship time). Sourced from Anchor PR #27 + PR #28 (2026-05-28 / 2026-05-29).
+- **`templates/setup-instructions.md` optional section** — instructions for copying the 3 new templates into BMad-style projects post-bootstrap.
+
+### Notes
+
+- Patterns originate from Anchor session work after the active `deferred-work.md` grew to 1638 lines / 102 D-N entries. The Dashboard index reduces per-query token cost by ~70% versus reading the full body, while keeping body structure intact.
+- These templates are **optional** — the core bootstrap (AGENTS.md / CLAUDE.md / GEMINI.md / .gitignore) is unchanged.
+- No auto-propagation to existing cct-bootstrapped projects. Each project copies the new templates manually if desired.
+
 ## [v3.7.0] — 2026-05-27
 
 ### Added

@@ -1,0 +1,7 @@
+# Specification Index
+
+Directory index for spec files — progressive-disclosure layer 2 (full detail in each spec file).
+
+| Slug | Topic | Status | Sprint |
+|---|---|---|---|
+<!-- populate from spec-*.md frontmatter. Sort: non-done first, then done. Alphabetical within group. -->
