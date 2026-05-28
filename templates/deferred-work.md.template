@@ -1,0 +1,28 @@
+# Deferred Work
+
+> Active backlog only. Shipped / resolved entries are cut to `deferred-work-archive.md` at ship time (do not annotate inline).
+> Cross-references use D-N identifiers (e.g. `[[D-foo-bar]]`), not line numbers — line numbers drift after every edit.
+
+---
+
+## Dashboard
+
+| D-N | Severity | Module | Title |
+|---|---|---|---|
+<!-- populate as entries land below. Sort by Severity desc then D-N. -->
+
+---
+
+## YYYY-MM-DD · from spec-XXX review
+
+### D1 — <one-line title>
+
+**Source**: <which reviewer / which spec>
+
+**Issue**: ...
+
+**Why deferred**: ...
+
+**Suggested fix**: ...
+
+---

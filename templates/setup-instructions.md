@@ -69,3 +69,13 @@ Because each CLI's default config filename and import syntax differ:
 - **Gemini CLI** (legacy, sunsets 2026-06-18) defaults to `GEMINI.md`. Supports `@./AGENTS.md` import. Our `GEMINI.md` is one line.
 
 This means one canonical source (`AGENTS.md`) — Codex and Antigravity read it natively, Claude uses a thin wrapper, Gemini uses a legacy wrapper. Edit AGENTS.md → all CLIs see the change.
+
+## Optional: BMad-style backlog & spec docs
+
+If your project uses BMad workflows (spec-driven dev with deferred backlog), also copy these progressive-disclosure scaffolds:
+
+- `templates/deferred-work.md.template` → `<project>/_bmad-output/implementation-artifacts/deferred-work.md`
+- `templates/deferred-work-archive.md.template` → same dir, as `deferred-work-archive.md`
+- `templates/SPEC-INDEX.md.template` → same dir, as `SPEC-INDEX.md` (populate from your spec frontmatter)
+
+These provide the Dashboard / Index structure for backlogs and spec corpora that grow past ~30 entries. The progressive-disclosure convention is codified in `templates/AGENTS.md.template` under `## Document Conventions`. See <https://github.com/FuzzyKala/anchor/pull/27> and <https://github.com/FuzzyKala/anchor/pull/28> for the live examples that produced this pattern.

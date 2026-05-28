@@ -177,6 +177,12 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 - Subject line ≤ 72 chars. Body wraps at ~80 cols.
 - One logical change per commit. If you can split it, split it.
 
+## Document Conventions
+
+- **Progressive disclosure for growing docs.** When a doc exceeds ~30 discrete entries (e.g. a deferred-work backlog, a spec corpus), add a Dashboard / Index table at the top with stable anchor links into the body. Keep existing body content unchanged below — do **not** reorganize by topic / module, because the chronological + source-spec context is load-bearing.
+- **Archive split at ship time.** Shipped / resolved entries are cut from the active doc into a sibling `*-archive.md` (do not annotate inline with Status blocks). Preserve cross-reference IDs with HTML anchors (`<a id="d-foo"></a>`).
+- TODO: project-specific doc conventions (filing locations, naming patterns, retention).
+
 ## Security & Configuration Tips
 
 - Never commit secrets. Use `.env.local` (gitignored) and document required env vars in a `.env.example`.

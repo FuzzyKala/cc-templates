@@ -1,0 +1,7 @@
+# Deferred Work — Archive
+
+> Shipped / resolved entries cut from `deferred-work.md` at ship time. Use HTML anchors (`<a id="d-foo"></a>`) to preserve cross-reference compatibility.
+
+---
+
+<!-- entries appended here as they ship. Use the same format as active deferred-work.md, plus a `**Status:** SHIPPED in PR #N` or `**Status:** RESOLVED via <decision>` line. -->
