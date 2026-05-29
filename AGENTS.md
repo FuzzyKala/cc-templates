@@ -28,7 +28,7 @@ cc-templates is a multi-CLI project bootstrap toolkit. It ships:
 
 - An `AGENTS.md` canonical-config template, plus thin `CLAUDE.md` / `GEMINI.md` wrappers that `@import` from `AGENTS.md`.
 - A `/setup-multi-agent` skill that drops the trio into a new project and patches `.gitignore`.
-- A `/wrap` skill that does session-end full recap with a 10-session rolling window.
+- A `/wrap` skill that does session-end full recap with a 5-session rolling window (oldest entry dropped to git history, no archive file).
 - A `/ready` skill that does a read-only project context scan at session start.
 
 The repo is also the first user of its own templates — its own root has `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` per the v3 pattern (this is the Phase 5 "dogfood" of `docs/v3-multi-agent-rewrite-spec.md`).

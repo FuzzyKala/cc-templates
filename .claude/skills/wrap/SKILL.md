@@ -1,6 +1,6 @@
 ---
 name: wrap
-description: Session-end full recap — analyze current session, archive previous sprint state, update CLAUDE.md Current Sprint Status, maintain 10-session rolling window with overflow to archive. Run at end of a working session before closing the terminal. Distinct from Claude Code's built-in `/recap` (which is a one-line synopsis triggered after terminal idle).
+description: Session-end full recap — analyze current session, archive previous sprint state, update CLAUDE.md Current Sprint Status, maintain a 5-session rolling window (oldest entry dropped to git history; no archive file). Run at end of a working session before closing the terminal. Distinct from Claude Code's built-in `/recap` (which is a one-line synopsis triggered after terminal idle).
 ---
 
 # /wrap — Session-end full recap
@@ -66,18 +66,18 @@ Replace the previous Current Sprint Status section with the new one:
 
 **Do NOT modify `AGENTS.md`.** Project context lives there and is stable across sessions; sprint state lives only in `CLAUDE.md`.
 
-### 5. 10-session rolling window
+### 5. 5-session rolling window
 
 After step 3, count the `## Session ` headings in `.claude/sessions/session-history.md` (each entry starts with `## Session N `).
 
-- If count ≤ 10: nothing to do.
-- If count > 10: move the OLDEST entry (the bottom-most `## Session ` block) into `.claude/sessions/session-history-archive.md`. Create the archive file with header `# Session History Archive (append-only)` if it does not exist. Append the moved entry to the **bottom** of the archive (archive is chronological, oldest-first; active history is reverse-chronological, newest-first).
+- If count ≤ 5: nothing to do.
+- If count > 5: DELETE the OLDEST entry (the bottom-most `## Session ` block) from `.claude/sessions/session-history.md`. Do NOT move it to an archive file and do NOT create `session-history-archive.md` — git history is the deep archive. Every wrap commit preserves the full prior state, so any dropped session is recoverable with `git show <sha>:.claude/sessions/session-history.md`.
 
-Why the rolling window: keeps the auto-loaded active history small (fast grep, low context), while the archive preserves the full audit trail without bloating any agent's loaded context.
+Why the rolling window: keeps the auto-loaded active history small (fast grep, low context). Older sessions live in git history — which Claude can read on demand — so no separate archive file is needed.
 
 ### 6. Commit and push
 
-Stage `CLAUDE.md`, `.claude/sessions/session-history.md`, and `.claude/sessions/session-history-archive.md` (if it changed). Commit with:
+Stage `CLAUDE.md` and `.claude/sessions/session-history.md`. Commit with:
 
 ```
 chore: wrap Session N — <one-line summary>
@@ -91,6 +91,6 @@ If the commit message body would help future readers, add one short paragraph af
 
 - `CLAUDE.md` now opens with the new session block. The previous block is gone from `CLAUDE.md`.
 - `.claude/sessions/session-history.md` has the previous session as its top entry.
-- If `session-history.md` had > 10 entries before this run, the oldest is now in `session-history-archive.md` and removed from active history.
+- If `session-history.md` had > 5 entries before this run, the oldest has been deleted from it (preserved in git history, not in an archive file).
 - `AGENTS.md` is byte-identical to before.
 - `git log -1` shows the new wrap commit; `git status` is clean.

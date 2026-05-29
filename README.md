@@ -19,7 +19,7 @@ If you use more than one of these tools, you end up with multiple near-duplicate
 
 The repo also ships three skills that work inside Claude Code's `.claude/skills/` directory:
 
-- `/wrap` — session-end full recap with 10-session rolling window.
+- `/wrap` — session-end full recap with 5-session rolling window.
 - `/ready` — read-only project context scanner.
 - `/setup-multi-agent` — bootstrap a new project with the AGENTS.md / CLAUDE.md / GEMINI.md trio (GEMINI.md is legacy, kept until Gemini CLI sunset 2026-06-18).
 
@@ -117,7 +117,7 @@ Drop these in your project's `.claude/skills/` to make them available as slash c
 
 ### `/wrap`
 
-Session-end full recap. Distills the current session into 5-7 bullets, archives the previous session block from `CLAUDE.md` to `.claude/sessions/session-history.md`, and maintains a 10-session rolling window — when active history hits 11, the oldest moves to `.claude/sessions/session-history-archive.md`.
+Session-end full recap. Distills the current session into 5-7 bullets, archives the previous session block from `CLAUDE.md` to `.claude/sessions/session-history.md`, and maintains a 5-session rolling window — when active history hits 6, the oldest is deleted (git history is the deep archive; no separate archive file).
 
 **Distinct from Claude Code's built-in `/recap`** (v2.1.108+), which is a one-line synopsis triggered after terminal idle. `/wrap` is the explicit, full session-end version.
 

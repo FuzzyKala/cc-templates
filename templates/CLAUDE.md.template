@@ -22,6 +22,6 @@
 
 1. Update "Current Sprint Status" with a new session block (5-7 bullets max).
 2. Archive the previous session's block to `.claude/sessions/session-history.md` (newest entries at top).
-3. If `session-history.md` exceeds 10 entries, move the oldest to `.claude/sessions/session-history-archive.md`.
+3. If `session-history.md` exceeds 5 entries, delete the oldest — git history is the deep archive (no `session-history-archive.md`).
 4. Do NOT modify `AGENTS.md` — project context lives there and is stable across sessions.
 5. Keep this file under ~80 lines (sprint state + auto-update only).

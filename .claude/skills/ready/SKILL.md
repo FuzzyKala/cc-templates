@@ -82,5 +82,5 @@ If a section has no data (e.g., no installed skills), write `(none)` instead of 
 
 - Do not run setup, install, or fix anything. `/ready` is read-only.
 - Do not count "specialist agents" or validate any v2-era 5-agent topology.
-- Do not load or modify `session-history.md` or `session-history-archive.md` — those are for `/wrap`, not `/ready`.
+- Do not load or modify `session-history.md` — that's for `/wrap`, not `/ready`.
 - Do not exceed ~30 lines of output. The user wants a snapshot, not a deep-dive.
