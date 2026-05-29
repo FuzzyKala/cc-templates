@@ -2,6 +2,16 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v3.9.1] — 2026-05-29
+
+### Fixed
+
+- **`/wrap` rolling-window enforcement now trims down to the cap, not just one entry.** Step 5 previously deleted only the single oldest entry when over the window, so a history that was already over the cap — e.g. right after the window was reduced 10→5 in v3.9.0 — would hover above 5 forever (each wrap adds one and removes one). It now deletes the oldest entries until exactly 5 remain, so an over-cap history self-heals on the next wrap.
+
+### Removed
+
+- **Local pre-commit auto-bump hook deleted.** The `.git/hooks/pre-commit` script that auto-bumped `.version` (flagged as a doc-vs-hook gap in the v3.7.0 notes) has been removed from the working clone. It was never tracked — per-clone only, see session 243 — so this is a local cleanup; `.version` is now genuinely manual, matching the policy documented since PR #3. This commit was therefore made without `--no-verify`.
+
 ## [v3.9.0] — 2026-05-29
 
 ### Changed

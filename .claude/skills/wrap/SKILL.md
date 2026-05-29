@@ -71,7 +71,7 @@ Replace the previous Current Sprint Status section with the new one:
 After step 3, count the `## Session ` headings in `.claude/sessions/session-history.md` (each entry starts with `## Session N `).
 
 - If count ≤ 5: nothing to do.
-- If count > 5: DELETE the OLDEST entry (the bottom-most `## Session ` block) from `.claude/sessions/session-history.md`. Do NOT move it to an archive file and do NOT create `session-history-archive.md` — git history is the deep archive. Every wrap commit preserves the full prior state, so any dropped session is recoverable with `git show <sha>:.claude/sessions/session-history.md`.
+- If count > 5: DELETE the oldest entries (the bottom-most `## Session ` blocks) one at a time until exactly 5 remain — delete as many as needed, not just one. Do NOT move them to an archive file and do NOT create `session-history-archive.md` — git history is the deep archive. Every wrap commit preserves the full prior state, so any dropped session is recoverable with `git show <sha>:.claude/sessions/session-history.md`. (Deleting until 5 remain means a history that is over the cap — e.g. right after the window size is reduced — self-heals on the next wrap instead of hovering above 5 forever.)
 
 Why the rolling window: keeps the auto-loaded active history small (fast grep, low context). Older sessions live in git history — which Claude can read on demand — so no separate archive file is needed.
 
@@ -91,6 +91,6 @@ If the commit message body would help future readers, add one short paragraph af
 
 - `CLAUDE.md` now opens with the new session block. The previous block is gone from `CLAUDE.md`.
 - `.claude/sessions/session-history.md` has the previous session as its top entry.
-- If `session-history.md` had > 5 entries before this run, the oldest has been deleted from it (preserved in git history, not in an archive file).
+- If `session-history.md` had > 5 entries before this run, the oldest entries have been deleted until exactly 5 remain (preserved in git history, not in an archive file).
 - `AGENTS.md` is byte-identical to before.
 - `git log -1` shows the new wrap commit; `git status` is clean.
