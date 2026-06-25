@@ -2,6 +2,47 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.0] — 2026-06-25
+
+Two cleanups: drop the `Sprint Wrap Procedure` section from `AGENTS.md` (the `/wrap` skill is the single source of truth — no need to duplicate procedural docs in every project's `AGENTS.md`), and retire Gemini CLI infrastructure (Gemini CLI free tier sunset 2026-06-18; Antigravity CLI `agy` is the active Google CLI). Also fixes the v4.0.0 oversight that left `README.md` in v3 framing.
+
+### Breaking changes
+
+- **`GEMINI.md.template` removed.** `/setup-multi-agent` no longer creates a `GEMINI.md` in bootstrapped projects. Existing v3.x projects that still ship a `GEMINI.md` can leave it — nothing in v4.1.0 requires its removal — but new projects only get `AGENTS.md` + `CLAUDE.md`. Existing `GEMINI.md` files become inert (Gemini CLI is sunset).
+- **`Sprint Wrap Procedure` section removed from `AGENTS.md` (own dogfood + template).** The `/wrap` skill encodes the same steps. Projects bootstrapped from v4.0.0 templates carry the now-deleted section; `/wrap` still works regardless (the skill no longer cross-references the section), but you can manually delete the section from your `AGENTS.md` to match the new template.
+
+### Changed
+
+- **`templates/AGENTS.md.template`** — Sprint Wrap Procedure section removed; all Gemini-related sections / mentions removed (Gemini CLI Role section, `GEMINI.md` Documentation Navigation entry, "Claude / Codex / Antigravity / Gemini" → "Claude / Codex / Antigravity", commit-trailer Gemini noreply, sub-agent prompt warning, `GEMINI.md` in Session 1 placeholder).
+- **`templates/setup-instructions.md`** — `5 steps → 4 steps` (dropped GEMINI.md cp step). Gemini verification command removed. `git add` line dropped `GEMINI.md`. "Why multiple files" section simplified to "Why a CLAUDE.md wrapper".
+- **`templates/gitignore-additions.txt`** — `.gemini/` retained (Antigravity CLI uses `~/.gemini/antigravity-cli/`) but comments rewritten to reflect Antigravity-only ownership; v3 header bumped to v4.
+- **`.claude/skills/wrap/SKILL.md`** — Step 4 inlines the sprint-status block format description (header lines / `### Session N highlights` / `### Next session start` / optional footer; ~80-line cap) instead of cross-referencing the deleted "Sprint Wrap Procedure" section.
+- **`.claude/skills/setup-multi-agent/SKILL.md`** — drops Gemini from the trio framing (now "AGENTS.md + CLAUDE.md pair"), removes Gemini template from Prerequisites / Step 0 file-check loop / Step 3 substitution rules, replaces Gemini verification command in Step 5 with Antigravity (`agy`), drops Gemini CLI install URL.
+- **`README.md`** — modernized for v4 SSOT (the bits missed in v4.0.0). `/wrap` description no longer mentions rolling window or CLAUDE.md as the wrap target. Architecture tree shows `AGENTS.md` + `CLAUDE.md` (no `GEMINI.md`). "CLAUDE.md is the only file that changes session-to-session" sentence replaced with "AGENTS.md holds everything — stable context above markers, sprint-status below". Version badge v3 → v4. Drops all Gemini bullets from "What this is" / verification commands / architecture / user-level rules / "Skills included" / cross-agent auth / References.
+- **cc-templates dogfooding** — own `AGENTS.md` mirrors all template changes: Sprint Wrap Procedure section removed, Gemini sections removed, Documentation Navigation cleaned, Testing Guidelines no longer mentions `gemini -p`.
+
+### Removed
+
+- **`GEMINI.md`** (own dogfood) and **`templates/GEMINI.md.template`** — Gemini CLI free tier sunset 2026-06-18, 7 days before this release. v4.0.0's own sprint-status block already flagged this as an open item ("decide whether to drop … or leave one more grace cycle for any straggler users"); 7 days later, no straggler use case justifies maintaining the templates.
+
+### Migration
+
+For existing v3.x or v4.0.0 projects:
+
+- **If you still use Gemini CLI somehow** (e.g. paid tier): keep your existing `GEMINI.md`; v4.1.0 just stops shipping the template. Nothing in your project breaks.
+- **Optional cleanup of `Sprint Wrap Procedure` section in your `AGENTS.md`** (only matters if you bootstrapped from v4.0.0 template, or used the jsdesign / Anchor pattern that ships the same section): in your `AGENTS.md`, delete the block between `---` and `<!-- sprint-status:end -->` that begins with `### Sprint Wrap Procedure`. The `/wrap` skill works either way.
+
+### Rationale
+
+The Sprint Wrap Procedure section was added in v4.0.0 on the assumption that `AGENTS.md` should be self-documenting about its own update procedure. Two sessions of actual usage (downstream Anchor + jsdesign) confirmed it's pure duplication — the procedure lives in `/wrap` SKILL.md, and the `AGENTS.md` copy never gets read because users invoke `/wrap` instead of reading the procedure. Token cost (auto-loaded into every conversation) + drift risk outweigh the self-documentation argument.
+
+The README modernization was a v4.0.0 oversight — only the templates / skills / dogfood AGENTS got migrated; the user-facing README still framed `CLAUDE.md` as the session-state holder. Riding with v4.1.0 closes the gap.
+
+### Notes
+
+- `docs/v3-multi-agent-rewrite-spec.md` still references `gemini -p` verification commands and `GEMINI.md` — intentionally left unchanged as historical record of the v3 rewrite.
+- `.version` bumped to v4.1.0 in a separate dedicated commit per project policy (.version + CHANGELOG.md only).
+
 ## [v4.0.0] — 2026-06-25
 
 Sprint state migrates from `CLAUDE.md` (under a `## Current Sprint Status` section) to a `<!-- sprint-status:start -->` / `<!-- sprint-status:end -->` block at the bottom of `AGENTS.md`. `CLAUDE.md` becomes a 1-line `@AGENTS.md` pointer. Aligns with the AGENTS.md SSOT convention that became cross-tool standard in 2025-12 (Linux Foundation Agentic AI Foundation; 60k+ repos read AGENTS.md natively).
