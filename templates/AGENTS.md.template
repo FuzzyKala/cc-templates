@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-> AGENTS.md is the canonical project context. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI (legacy, sunsets 2026-06-18) via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
+> AGENTS.md is the canonical project context. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), and by Claude Code via `@AGENTS.md` import in `CLAUDE.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
 
 ## Personal Working Agreement
 
-Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
+Rules that apply to every agent (Claude / Codex / Antigravity) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
 
 1. **Plain language, no jargon.** Explain like you would to a smart non-specialist. If a technical term is unavoidable, define it inline the first time. No corporate-report tone, no unexplained acronyms, no walls of bullet points when a sentence will do.
 
@@ -52,7 +52,6 @@ Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working 
 
 - `AGENTS.md` (this file) — canonical project context, conventions, tooling preferences, and the sprint-status block at the bottom (between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->`).
 - `CLAUDE.md` — thin `@AGENTS.md` wrapper. Byte-stable across sessions; sprint state lives in this file, not in `CLAUDE.md`.
-- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI (legacy, sunsets 2026-06-18).
 
 ### AI Agent Rules
 
@@ -74,11 +73,7 @@ Codex CLI loads this file natively (no `@import` needed). Defaults to `gpt-5` as
 
 ### Antigravity CLI Role
 
-Antigravity CLI (`agy`) loads this file natively (no `@import` needed, same as Codex). Replaces Gemini CLI per Google's 2026-05-19 announcement; Antigravity is built in Go, free-tier quota refreshes every 5h. Good fit: long-context reads (large diffs / file scans), Google Workspace via `gws` CLI, multimodal (image / PDF) input, well-specified sub-tasks with clear acceptance tests.
-
-### Gemini CLI Role (legacy — sunsets 2026-06-18)
-
-Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Free tier deprecates 2026-06-18 per [Google announcement](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) — migrate to Antigravity CLI before the deadline. Until then, same role-fit as Antigravity. Gemini does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21) — keep `GEMINI.md` as a real file, not a symlink.
+Antigravity CLI (`agy`) loads this file natively (no `@import` needed, same as Codex). Built in Go, free-tier quota refreshes every 5h. Good fit: long-context reads (large diffs / file scans), Google Workspace via `gws` CLI, multimodal (image / PDF) input, well-specified sub-tasks with clear acceptance tests.
 
 ### Branch & Push Rules (applies to all delegated CLIs)
 
@@ -86,7 +81,7 @@ PR flow, not direct push to `main`:
 
 1. Agent works on a feature branch named `<cli>/<task-slug>` (e.g. `codex/cleanup-imports`, `agy/redesign-empty-state`).
 2. Before committing, agent runs and confirms green: typecheck + lint commands defined in "Build, Test, and Development Commands" below. For DB-touching work, also run any DB verification command.
-3. Commit using conventional style (`feat(scope): ...`, `fix(scope): ...`, etc.) with `Co-Authored-By: <CLI> <noreply@<vendor>.com>` trailer (`<noreply@openai.com>` for Codex, `<noreply@google.com>` for Antigravity CLI, `<noreply@google.com>` for Gemini CLI until sunset).
+3. Commit using conventional style (`feat(scope): ...`, `fix(scope): ...`, etc.) with `Co-Authored-By: <CLI> <noreply@<vendor>.com>` trailer (`<noreply@openai.com>` for Codex, `<noreply@google.com>` for Antigravity CLI).
 4. Push the branch to origin and open a PR against `main`. Title = the conventional commit title. Body = what changed, what was tested, what the spec said.
 5. Do **NOT** self-merge. Wait for human review (or Claude orchestrator in multi-CLI setup).
 6. **Do NOT deploy from a feature branch.** Deploys happen post-merge from `main`, by the user or by Claude as orchestrator. Branch-deploy causes `main` ↔ prod desync (any later main-deploy reverts the agent's work).
@@ -129,7 +124,7 @@ Single-agent rounds (only one CLI at a time) don't need worktree isolation — j
 When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 
 - **Token efficiency.** Benchmarks show ~17x fewer tokens per task for CLI vs MCP (Firecrawl / Arize, 2025).
-- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity / Gemini. MCP OAuth is per-agent.
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity. MCP OAuth is per-agent.
 - **Reliability.** CLI flow is one process call; MCP adds a server hop.
 
 **Preferred CLIs** (install status defaults to `⏳ not installed`; bootstrap user should run `command -v <tool>` per their machine and update to `✓ installed` where applicable):
@@ -143,7 +138,7 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 | Browser scripted flows | Playwright CLI | ⏳ not installed | Mature; use Playwright Python for headless automation. |
 | JIRA | `acli` | ⏳ not installed | Atlassian official, GA 2026. |
 
-**Important for sub-agent prompts:** When delegating a task that requires a CLI tool, check this matrix's install status FIRST. For `⏳ not installed`, do one of: (a) ask the user to install before delegating, (b) fall back to the corresponding MCP if available, or (c) use a closer-fit alternative. Do NOT prompt sub-agents (Codex / Antigravity / Gemini) to invoke a tool listed as `⏳ not installed` — they will fail silently or hallucinate output.
+**Important for sub-agent prompts:** When delegating a task that requires a CLI tool, check this matrix's install status FIRST. For `⏳ not installed`, do one of: (a) ask the user to install before delegating, (b) fall back to the corresponding MCP if available, or (c) use a closer-fit alternative. Do NOT prompt sub-agents (Codex / Antigravity) to invoke a tool listed as `⏳ not installed` — they will fail silently or hallucinate output.
 
 ### Stay on MCP (no viable CLI)
 
@@ -198,22 +193,10 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 ### Session 1 highlights
 
 - Project bootstrapped: `AGENTS.md` (with sprint-status block) + `CLAUDE.md` (thin `@AGENTS.md` pointer) in place.
-- `GEMINI.md` (legacy) optionally in place if still using Gemini CLI through 2026-06-18 sunset.
 - `.gitignore` patched for multi-CLI safety.
 
 ### Next session start
 
 > Fill in project-specific details above in `AGENTS.md` (Project Overview, Goals, Tech Stack, Constraints). Run `/ready` to verify config loaded. Then begin work.
-
----
-
-### Sprint Wrap Procedure
-
-Note: Claude Code's built-in `/recap` is a one-line synopsis (auto-fires after terminal idle); it does NOT do this full wrap. For a real session wrap, invoke the `/wrap` skill.
-
-1. Update "Last Updated" / "Active Work" header lines with the new session.
-2. Replace "Session N highlights" + "Next session start" blocks with the new session's content. Older sessions live in git history — retrieve via `git log --grep="wrap Session" -- AGENTS.md` then `git show <hash> -- AGENTS.md`.
-3. Keep this sprint-status block under ~80 lines (highlights + next-session triggers only; project context lives in the rest of this file).
-4. Commit subject: `chore: wrap Session N — <one-line summary>`. Wrap commits should only touch this sprint-status block — if other sections of AGENTS.md need an update (project rules, sub-agent roles, etc.), make a SEPARATE commit before/after the wrap.
 
 <!-- sprint-status:end -->

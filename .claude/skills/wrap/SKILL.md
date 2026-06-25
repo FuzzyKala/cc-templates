@@ -57,7 +57,14 @@ Skip this step if no candidates are worth codifying. Expected outcome for trivia
 
 ### 4. Update the AGENTS.md sprint-status block
 
-Replace the contents between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->` in `AGENTS.md` with the new session's content. The block follows the format the project's own "Sprint Wrap Procedure" notes describe inside the block (typically: header lines with Last Updated / Active Work / Previous Milestone, then "Session N highlights" bullets, then "Next session start" trigger list, then operational footer).
+Replace the contents between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->` in `AGENTS.md` with the new session's content. Block format:
+
+- Header lines: `**Last Updated:** YYYY-MM-DD (Session N — <title>)`, `**Active Work:** <one-line description>`, `**Previous Milestone:** ✅ <prior session>`.
+- `### Session N (YYYY-MM-DD) highlights` — bullets covering what shipped this session (≤ 2 lines each).
+- `### Next session start` — trigger list for what to pick up next. Specific filenames / commands / decisions.
+- Optional operational footer.
+
+Keep the whole block under ~80 lines — highlights + next-session triggers only; project context lives in the rest of `AGENTS.md`.
 
 **Only touch the sprint-status block.** Do NOT modify other sections of `AGENTS.md` (project rules, agent role descriptions, tooling preferences, etc.) in the wrap commit — those are stable across sessions. If a stable rule changed this session, make a SEPARATE commit before or after the wrap.
 

@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-> AGENTS.md is the canonical project context for cc-templates. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), by Claude Code via `@AGENTS.md` import in `CLAUDE.md`, and by Gemini CLI (legacy, sunsets 2026-06-18) via `@./AGENTS.md` import in `GEMINI.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
+> AGENTS.md is the canonical project context for cc-templates. It is loaded natively by Codex CLI and Antigravity CLI (`agy`), and by Claude Code via `@AGENTS.md` import in `CLAUDE.md`. AGENTS.md is governed by the Linux Foundation Agentic AI Foundation. See <https://agents.md/>.
 
 ## Personal Working Agreement
 
-Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
+Rules that apply to every agent (Claude / Codex / Antigravity) working in this repo. These mirror the user's global `~/.claude/CLAUDE.md` so all CLIs share the same expectations.
 
 1. **Plain language, no jargon.** Explain like you would to a smart non-specialist. If a technical term is unavoidable, define it inline the first time. No corporate-report tone, no unexplained acronyms, no walls of bullet points when a sentence will do.
 
@@ -26,12 +26,12 @@ Rules that apply to every agent (Claude / Codex / Antigravity / Gemini) working 
 
 cc-templates is a multi-CLI project bootstrap toolkit. It ships:
 
-- An `AGENTS.md` canonical-config template, plus thin `CLAUDE.md` / `GEMINI.md` wrappers that `@import` from `AGENTS.md`.
+- An `AGENTS.md` canonical-config template plus a thin `CLAUDE.md` wrapper that `@imports` `AGENTS.md`.
 - A `/setup-multi-agent` skill that drops the trio into a new project and patches `.gitignore`.
 - A `/wrap` skill that does session-end full recap by replacing the AGENTS.md sprint-status block. No rolling-window archive file — git history is the deep archive.
 - A `/ready` skill that does a read-only project context scan at session start.
 
-The repo is also the first user of its own templates — its own root has `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` per the v3 pattern (this is the Phase 5 "dogfood" of `docs/v3-multi-agent-rewrite-spec.md`).
+The repo is also the first user of its own templates — its own root has `AGENTS.md` + thin `CLAUDE.md` per the current pattern (dogfooding).
 
 ### Target Audience
 
@@ -49,8 +49,7 @@ Solo developers and small teams who use more than one coding CLI (e.g., Claude C
 - **No automatic v2 → v3 migration.** v2 is preserved on `v2-archive` branch; users adopt v3 by re-bootstrapping.
 - **Skills, not commands.** New slash-invocable behavior is authored as `.claude/skills/<name>/SKILL.md` per <https://code.claude.com/docs/en/skills>. v2's `commands/*.md` were migrated.
 - **`/wrap`, not `/recap`.** Claude Code v2.1.108+ ships a built-in `/recap` (one-line synopsis) that cannot be overridden. The session-end full-recap behavior gets a different name.
-- **GEMINI.md is a real file, not a symlink.** Gemini CLI does NOT follow symlinks at the `GEMINI.md` path (issue #11547, closed `not_planned` 2025-11-21).
-- **Keep `cc-templates` repo name.** The `agents-md-*` namespace is crowded on GitHub as of 2026-05. The "cc" prefix can be read as "Coding CLI" (covers Claude Code / Codex CLI / Antigravity CLI / Gemini CLI).
+- **Keep `cc-templates` repo name.** The `agents-md-*` namespace is crowded on GitHub as of 2026-05. The "cc" prefix can be read as "Coding CLI" (covers Claude Code / Codex CLI / Antigravity CLI).
 
 ### Tech Stack
 
@@ -61,7 +60,7 @@ Plain Markdown + git + Bash. `.version` is managed manually in dedicated commits
 - Solo maintainer; no CI/CD beyond GitHub's default checks.
 - Templates must work standalone — a user with no internet access (after cloning) should be able to bootstrap a project using only this repo's contents.
 - `v2-archive` branch is preserved indefinitely.
-- The repo dogfoods its own templates: its root has `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` per the v3 pattern.
+- The repo dogfoods its own templates: its root has `AGENTS.md` + thin `CLAUDE.md` per the current pattern.
 
 ## Documentation Navigation
 
@@ -69,7 +68,6 @@ Plain Markdown + git + Bash. `.version` is managed manually in dedicated commits
 
 - `AGENTS.md` (this file) — canonical project context, conventions, tooling preferences, and the sprint-status block at the bottom (between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->`).
 - `CLAUDE.md` — thin `@AGENTS.md` wrapper. Byte-stable across sessions; sprint state lives in this file, not in `CLAUDE.md`.
-- `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI (legacy, sunsets 2026-06-18).
 - `README.md` — user-facing readme; multi-CLI framing and quick start.
 - `CHANGELOG.md` — release history (Keep a Changelog format).
 
@@ -99,16 +97,12 @@ Codex CLI loads this file natively. Use Codex for: precise diff-style edits to s
 
 Antigravity CLI (`agy`) loads this file natively (no `@import` needed, same as Codex). Use Antigravity for: long-context reads (e.g., scanning the whole `v2-archive` for a buried convention), multimodal review of screenshots in spec drafts, well-specified sub-tasks where ~5 prompt constraints fully define the work.
 
-### Gemini CLI Role (legacy — sunsets 2026-06-18)
-
-Gemini CLI loads this file via `@./AGENTS.md` import in `GEMINI.md`. Free tier deprecates 2026-06-18 per [Google announcement](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) — migrate to Antigravity CLI before deadline. Until then, same role-fit as Antigravity.
-
 ## Tool Preference: CLI over MCP
 
 When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 
 - **Token efficiency.** Benchmarks (Firecrawl / Arize, 2025) show ~17x fewer tokens per task for CLI vs MCP at 10k ops/month — 1.3-8.7k tokens (CLI) vs 32-82k tokens (MCP).
-- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity / Gemini. MCP OAuth is per-agent.
+- **Cross-agent auth.** CLI auth lives in `~/.config/<tool>/` and is shared across Claude / Codex / Antigravity. MCP OAuth is per-agent.
 - **Reliability.** CLI flow is one process call; MCP adds a server hop.
 
 ### Preferred CLIs
@@ -132,9 +126,8 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 
 ```
 cc-templates/
-├── AGENTS.md              ← this file (canonical context)
-├── CLAUDE.md              ← thin @AGENTS.md + Current Sprint Status
-├── GEMINI.md              ← thin @./AGENTS.md
+├── AGENTS.md              ← this file (canonical context + sprint-status block)
+├── CLAUDE.md              ← thin @AGENTS.md (one line)
 ├── README.md              ← user-facing readme
 ├── CHANGELOG.md           ← release history
 ├── LICENSE                ← MIT
@@ -150,7 +143,6 @@ cc-templates/
 └── templates/
     ├── AGENTS.md.template
     ├── CLAUDE.md.template
-    ├── GEMINI.md.template
     ├── gitignore-additions.txt
     └── setup-instructions.md
 ```
@@ -171,7 +163,7 @@ There is no build step. To test changes:
 
 ## Testing Guidelines
 
-Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `codex exec`, `agy` (Antigravity CLI), and `GEMINI_CLI_TRUST_WORKSPACE=true gemini -p` (legacy, until 2026-06-18) per the README and `templates/setup-instructions.md`.
+Manual until automated tests are added. The acceptance criteria per phase live in `docs/v3-multi-agent-rewrite-spec.md`. Before merging changes to skills or templates, run a fresh-terminal verification of `claude --print`, `codex exec`, and `agy` (Antigravity CLI) per the README and `templates/setup-instructions.md`.
 
 ## Commit & Pull Request Guidelines
 
@@ -207,18 +199,5 @@ Manual until automated tests are added. The acceptance criteria per phase live i
 ### Next session start
 
 > Smoke-test the v4 bootstrap end-to-end: run `/setup-multi-agent` against a scratch directory and verify the produced AGENTS.md has the sprint-status block + CLAUDE.md is one line. Existing v3.x projects (Anchor, jsdesign-landing-page) already AGENTS-SSOT in practice — no downstream migration needed.
->
-> Open items: Gemini CLI sunset has passed (2026-06-18, 7 days ago) — decide whether to drop `templates/GEMINI.md.template` + own `GEMINI.md` in a follow-up commit, or leave one more grace cycle for any straggler users.
-
----
-
-### Sprint Wrap Procedure
-
-Note: Claude Code's built-in `/recap` is a one-line synopsis (auto-fires after terminal idle); it does NOT do this full wrap. For a real session wrap, invoke the `/wrap` skill.
-
-1. Update "Last Updated" / "Active Work" / "Previous Milestone" header lines with the new session.
-2. Replace "Session N highlights" + "Next session start" blocks with the new session's content. Older sessions live in git history — retrieve via `git log --grep="wrap Session" -- AGENTS.md` then `git show <hash> -- AGENTS.md`.
-3. Keep this sprint-status block under ~80 lines (highlights + next-session triggers only; project context lives in the rest of this file).
-4. Commit subject: `chore: wrap Session N — <one-line summary>`. Wrap commits should only touch this sprint-status block — if other sections of AGENTS.md need an update (project rules, sub-agent roles, etc.), make a SEPARATE commit before/after the wrap.
 
 <!-- sprint-status:end -->

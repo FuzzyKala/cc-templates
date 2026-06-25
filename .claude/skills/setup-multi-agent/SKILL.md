@@ -1,22 +1,21 @@
 ---
 name: setup-multi-agent
-description: Bootstrap a new project with multi-CLI agent config — drops AGENTS.md / CLAUDE.md / GEMINI.md from the cc-templates templates/ directory into a target project, patches its .gitignore, and prints verification commands. The "multi-agent" here means multi-CLI (Claude Code + Codex CLI + Gemini CLI), not multiple internal sub-agents.
+description: Bootstrap a new project with multi-CLI agent config — drops AGENTS.md + CLAUDE.md from the cc-templates templates/ directory into a target project, patches its .gitignore, and prints verification commands. The "multi-agent" here means multi-CLI (Claude Code + Codex CLI + Antigravity CLI), not multiple internal sub-agents.
 ---
 
 # /setup-multi-agent — Bootstrap a new project
 
-Drop the AGENTS.md / CLAUDE.md / GEMINI.md trio into a target project so all three coding CLIs (Claude Code, Codex CLI, Gemini CLI) load the same canonical project context.
+Drop the AGENTS.md + CLAUDE.md pair into a target project so all three coding CLIs (Claude Code, Codex CLI, Antigravity CLI) load the same canonical project context. AGENTS.md is the canonical source; CLAUDE.md is a 1-line `@AGENTS.md` import so Claude Code (which doesn't yet natively read AGENTS.md) gets the same content.
 
 ## Prerequisites
 
-The cc-templates repo must be available locally. The skill reads four files from its `templates/` directory:
+The cc-templates repo must be available locally. The skill reads three files from its `templates/` directory:
 
 - `templates/AGENTS.md.template`
 - `templates/CLAUDE.md.template`
-- `templates/GEMINI.md.template`
 - `templates/gitignore-additions.txt`
 
-Step 0 below locates that directory. If any of the four files is missing after resolution, fail loudly and stop.
+Step 0 below locates that directory. If any of the three files is missing after resolution, fail loudly and stop.
 
 ## Steps
 
@@ -32,9 +31,9 @@ SKILL_DIR_RESOLVED="$(readlink -f "<skill-base-dir>")"
 CCT_ROOT="$(readlink -f "${SKILL_DIR_RESOLVED}/../../..")"
 TEMPLATES_DIR="${CCT_ROOT}/templates"
 
-# Verify the four template files exist; fail loudly if any are missing.
+# Verify the three template files exist; fail loudly if any are missing.
 missing=0
-for f in AGENTS.md.template CLAUDE.md.template GEMINI.md.template gitignore-additions.txt; do
+for f in AGENTS.md.template CLAUDE.md.template gitignore-additions.txt; do
   if [ ! -r "${TEMPLATES_DIR}/${f}" ]; then
     echo "ERROR: Missing template at ${TEMPLATES_DIR}/${f}" >&2
     missing=1
@@ -62,7 +61,7 @@ Ask the user (one batched question with AskUserQuestion if available, else seque
 
 - If target does not exist, ask before creating it.
 - If target is not a git repo (`git -C <target> rev-parse --is-inside-work-tree`), warn and ask whether to `git init` it.
-- If `<target>/AGENTS.md`, `<target>/CLAUDE.md`, or `<target>/GEMINI.md` already exists, list which ones and ask: overwrite, skip, or abort.
+- If `<target>/AGENTS.md` or `<target>/CLAUDE.md` already exists, list which ones and ask: overwrite, skip, or abort.
 
 ### 3. Materialise the files
 
@@ -72,8 +71,6 @@ For each template, read from `${TEMPLATES_DIR}/` (resolved in Step 0), substitut
   - Replace: `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{TARGET_MARKET}}`, `{{TECH_STACK_SUMMARY}}`, `{{KEY_CONSTRAINTS}}`, and `{{TODAY}}` (inside the sprint-status block's `**Last Updated:**` line; use `date +%Y-%m-%d` output).
 - `${TEMPLATES_DIR}/CLAUDE.md.template` → `<target>/CLAUDE.md`
   - No placeholders (single `@AGENTS.md` line).
-- `${TEMPLATES_DIR}/GEMINI.md.template` → `<target>/GEMINI.md`
-  - No placeholders (single `@./AGENTS.md` line).
 
 ### 4. Patch `.gitignore`
 
@@ -90,9 +87,8 @@ cd <target>
 # Claude Code loads AGENTS.md via the @AGENTS.md import in CLAUDE.md:
 claude --print 'Without using any tools, just from your loaded context: does it contain a section called "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 
-# Gemini CLI loads AGENTS.md via the @./AGENTS.md import in GEMINI.md:
-# GEMINI_CLI_TRUST_WORKSPACE=true is required for Gemini CLI headless mode (-p flag):
-GEMINI_CLI_TRUST_WORKSPACE=true gemini -p 'Without using any tools, just from your loaded context: does the project context exist? Answer yes or no.'
+# Antigravity CLI (agy) reads AGENTS.md natively (no wrapper needed):
+agy 'Without using any tools, just from your loaded context: does it contain a section called "Tool Preference: CLI over MCP"? If yes quote the first sentence.'
 
 # Codex CLI reads AGENTS.md natively (no wrapper needed). NOTE: Codex is an
 # agent loop and will read files unless explicitly told not to. The prompt
@@ -106,7 +102,7 @@ codex exec 'Without running any shell commands or reading any files, answer pure
 If any of the three CLIs is not installed, mention which and link the user to:
 - Claude Code: <https://docs.claude.com/en/docs/claude-code>
 - Codex CLI: <https://developers.openai.com/codex>
-- Gemini CLI: <https://github.com/google-gemini/gemini-cli>
+- Antigravity CLI: <https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/>
 
 ### 6. Final summary
 
@@ -116,13 +112,12 @@ Print a concise summary:
 ✓ Bootstrapped <project-name> at <target>
   - AGENTS.md (canonical project context + sprint-status block, Session 1)
   - CLAUDE.md (thin @AGENTS.md wrapper)
-  - GEMINI.md (thin @./AGENTS.md wrapper)
-  - .gitignore patched (+ .gemini/, +.agents/, +.claude/*)
+  - .gitignore patched (+ .agents/, + .gemini/, + .antigravitycli/, + .claude/*)
 
 Next steps:
   1. Edit AGENTS.md to fill in any details the placeholders missed.
   2. Run the 3 verification commands above (fresh terminal each, in <target>).
-  3. Commit: cd <target>; git add AGENTS.md CLAUDE.md GEMINI.md .gitignore; git commit -m 'feat: bootstrap multi-CLI agent config via cc-templates'
+  3. Commit: cd <target>; git add AGENTS.md CLAUDE.md .gitignore; git commit -m 'feat: bootstrap multi-CLI agent config via cc-templates'
 ```
 
 ## What NOT to do
