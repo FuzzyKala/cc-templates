@@ -2,6 +2,59 @@
 
 All notable changes to cc-templates. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [v4.0.0] — 2026-06-25
+
+Sprint state migrates from `CLAUDE.md` (under a `## Current Sprint Status` section) to a `<!-- sprint-status:start -->` / `<!-- sprint-status:end -->` block at the bottom of `AGENTS.md`. `CLAUDE.md` becomes a 1-line `@AGENTS.md` pointer. Aligns with the AGENTS.md SSOT convention that became cross-tool standard in 2025-12 (Linux Foundation Agentic AI Foundation; 60k+ repos read AGENTS.md natively).
+
+### Breaking changes
+
+- **Sprint state location.** Projects bootstrapped from v4 templates have sprint state in `AGENTS.md`, not `CLAUDE.md`. Existing v3.x projects need manual migration (see Migration below).
+- **`/wrap` skill no longer reads CLAUDE.md sprint-status.** The skill now targets the AGENTS.md sprint-status block. If invoked on a project whose `AGENTS.md` has no `<!-- sprint-status:start -->` marker, it stops and asks the user how to handle it rather than guessing.
+- **No more `.claude/sessions/session-history.md` rolling-window file.** Git history is the deep archive — `git log --grep="wrap Session" -- AGENTS.md` lists past wraps, `git show <sha> -- AGENTS.md` recovers any session's snapshot. The Step 4 (Archive) and Step 6 (5-session rolling window) sub-steps from `/wrap` v3 are removed entirely.
+
+### Changed
+
+- **`templates/AGENTS.md.template`** — gains `<!-- sprint-status:start -->` / `<!-- sprint-status:end -->` block at the bottom with Session 1 placeholder + Sprint Wrap Procedure section. `{{TODAY}}` placeholder moves here from `templates/CLAUDE.md.template`. Documentation Navigation "Current Sprint State" section repoints to the in-file block.
+- **`templates/CLAUDE.md.template`** — reduced from 28 lines to 1 line (`@AGENTS.md`). Sprint state + auto-update instructions removed (sprint state moved to AGENTS.md template; auto-update instructions superseded by the in-template "Sprint Wrap Procedure" + the `/wrap` skill's own steps).
+- **`templates/setup-instructions.md`** — Step 2 + Step 5 updated for the new placeholder location and CLAUDE.md role.
+- **`.claude/skills/wrap/SKILL.md`** — rewritten (119 → 89 lines). 7 steps → 5; Step 1 detects via AGENTS.md sprint-status block; Step 4 (was 5) replaces the block; archive + rolling-window steps deleted. Frontmatter description + intro updated. Includes an "Assumed file layout" preamble that hard-fails (asks user) if the project does not have the expected SSOT layout.
+- **`.claude/skills/ready/SKILL.md`** — description + Step 2 + report template + "What NOT to do" updated to read sprint state from AGENTS.md.
+- **`.claude/skills/setup-multi-agent/SKILL.md`** — Step 3 substitution rules + Step 6 summary updated. `{{TODAY}}` now substituted in AGENTS.md (was CLAUDE.md).
+- **cc-templates dogfooding** — own `AGENTS.md` migrated to v4 pattern (sprint-status block at bottom, Session 2 entry); own `CLAUDE.md` reduced to 1 line.
+
+### Removed
+
+- **`.claude/sessions/session-history.md`** — stale 2024-12-17 pre-v3 entries. Under v4, git history is the archive (no rolling-window file).
+
+### Migration
+
+There is no auto-migration. For existing v3.x projects, either re-bootstrap via `/setup-multi-agent` and copy your sprint state into the new AGENTS.md block, or hand-migrate:
+
+```bash
+# In your v3.x project:
+# 1. Open AGENTS.md and append at the bottom:
+#      <!-- sprint-status:start -->
+#      [paste the ## Current Sprint Status section from CLAUDE.md here]
+#      <!-- sprint-status:end -->
+# 2. Replace CLAUDE.md with the pointer (preserve any handful of imports you added):
+#      echo '@AGENTS.md' > CLAUDE.md
+# 3. (Optional) Remove the stale archive:
+#      git rm .claude/sessions/session-history.md  # git history retains it
+# 4. Commit: feat: migrate to cc-templates v4 SSOT pattern
+```
+
+### Rationale
+
+Downstream projects (Anchor + jsdesign-landing-page) had already adopted the AGENTS.md SSOT pattern ad-hoc — both keep sprint state in AGENTS.md, both have CLAUDE.md as `@AGENTS.md`. The `/wrap` skill kept pointing at CLAUDE.md, requiring manual workaround each session. v4 codifies what was already working downstream.
+
+The AGENTS.md SSOT standard reached critical mass in 2025-12 when Linux Foundation accepted it under the Agentic AI Foundation (alongside MCP). 60k+ repos use it; native support across Codex, Cursor, GitHub Copilot Coding Agent, Gemini CLI, Aider, Windsurf, Zed, and 14+ other coding CLIs. Claude Code does not yet natively support AGENTS.md, so the `CLAUDE.md` → `@AGENTS.md` import workaround stays — but as a thin pointer only, never as a sprint-state location.
+
+### Notes
+
+- `GEMINI.md.template` retained for now; Gemini CLI sunset was 2026-06-18, 7 days before this release. A separate follow-up (v4.1.0 or v5.0.0) may drop it.
+- `docs/v3-multi-agent-rewrite-spec.md` intentionally left unchanged — it is the historical record of the v3 rewrite, not current policy.
+- `.version` bumped to v4.0.0 in a separate dedicated commit per project policy (.version + CHANGELOG.md only, no templates/ edits in the version-bump commit).
+
 ## [v3.9.1] — 2026-05-29
 
 ### Fixed
