@@ -69,11 +69,11 @@ Ask the user (one batched question with AskUserQuestion if available, else seque
 For each template, read from `${TEMPLATES_DIR}/` (resolved in Step 0), substitute placeholders, and write to `<target>/`:
 
 - `${TEMPLATES_DIR}/AGENTS.md.template` → `<target>/AGENTS.md`
-  - Replace: `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{TARGET_MARKET}}`, `{{TECH_STACK_SUMMARY}}`, `{{KEY_CONSTRAINTS}}`.
+  - Replace: `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{TARGET_MARKET}}`, `{{TECH_STACK_SUMMARY}}`, `{{KEY_CONSTRAINTS}}`, and `{{TODAY}}` (inside the sprint-status block's `**Last Updated:**` line; use `date +%Y-%m-%d` output).
 - `${TEMPLATES_DIR}/CLAUDE.md.template` → `<target>/CLAUDE.md`
-  - Replace: `{{TODAY}}` with `date +%Y-%m-%d` output.
+  - No placeholders (single `@AGENTS.md` line).
 - `${TEMPLATES_DIR}/GEMINI.md.template` → `<target>/GEMINI.md`
-  - No placeholders typically (single `@./AGENTS.md` line).
+  - No placeholders (single `@./AGENTS.md` line).
 
 ### 4. Patch `.gitignore`
 
@@ -114,8 +114,8 @@ Print a concise summary:
 
 ```
 ✓ Bootstrapped <project-name> at <target>
-  - AGENTS.md (canonical project context)
-  - CLAUDE.md (thin @AGENTS.md wrapper + Current Sprint Status, Session 1)
+  - AGENTS.md (canonical project context + sprint-status block, Session 1)
+  - CLAUDE.md (thin @AGENTS.md wrapper)
   - GEMINI.md (thin @./AGENTS.md wrapper)
   - .gitignore patched (+ .gemini/, +.agents/, +.claude/*)
 

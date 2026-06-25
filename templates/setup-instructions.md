@@ -14,7 +14,8 @@ If you cannot or do not want to run the `/setup-multi-agent` skill, you can drop
 #    by Claude via @import; by Gemini (legacy) via @import.
 cp templates/AGENTS.md.template <your-project>/AGENTS.md
 
-# 2. CLAUDE.md — thin wrapper: @AGENTS.md + Current Sprint Status.
+# 2. CLAUDE.md — thin wrapper: @AGENTS.md only. Sprint state lives in
+#    AGENTS.md sprint-status block, not here.
 cp templates/CLAUDE.md.template <your-project>/CLAUDE.md
 
 # 3. GEMINI.md — thin wrapper: @./AGENTS.md (legacy; only needed if using Gemini CLI before 2026-06-18 sunset)
@@ -25,9 +26,10 @@ cat templates/gitignore-additions.txt >> <your-project>/.gitignore
 
 # 5. Fill in the placeholders in <your-project>/AGENTS.md:
 #    {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{TARGET_MARKET}},
-#    {{TECH_STACK_SUMMARY}}, {{KEY_CONSTRAINTS}}
-# And in <your-project>/CLAUDE.md:
-#    {{TODAY}}  (use today's date in YYYY-MM-DD)
+#    {{TECH_STACK_SUMMARY}}, {{KEY_CONSTRAINTS}}, {{TODAY}}
+#    ({{TODAY}} is inside the sprint-status block at the bottom — use
+#     today's date in YYYY-MM-DD format)
+# CLAUDE.md has no placeholders.
 ```
 
 ## Verification (run in a fresh terminal so context is loaded honestly)

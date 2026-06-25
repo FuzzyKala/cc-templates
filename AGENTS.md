@@ -28,7 +28,7 @@ cc-templates is a multi-CLI project bootstrap toolkit. It ships:
 
 - An `AGENTS.md` canonical-config template, plus thin `CLAUDE.md` / `GEMINI.md` wrappers that `@import` from `AGENTS.md`.
 - A `/setup-multi-agent` skill that drops the trio into a new project and patches `.gitignore`.
-- A `/wrap` skill that does session-end full recap with a 5-session rolling window (oldest entry dropped to git history, no archive file).
+- A `/wrap` skill that does session-end full recap by replacing the AGENTS.md sprint-status block. No rolling-window archive file — git history is the deep archive.
 - A `/ready` skill that does a read-only project context scan at session start.
 
 The repo is also the first user of its own templates — its own root has `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` per the v3 pattern (this is the Phase 5 "dogfood" of `docs/v3-multi-agent-rewrite-spec.md`).
@@ -67,8 +67,8 @@ Plain Markdown + git + Bash. `.version` is managed manually in dedicated commits
 
 ### Core References
 
-- `AGENTS.md` (this file) — canonical project context, conventions, and tooling preferences.
-- `CLAUDE.md` — thin `@AGENTS.md` wrapper + Current Sprint Status.
+- `AGENTS.md` (this file) — canonical project context, conventions, tooling preferences, and the sprint-status block at the bottom (between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->`).
+- `CLAUDE.md` — thin `@AGENTS.md` wrapper. Byte-stable across sessions; sprint state lives in this file, not in `CLAUDE.md`.
 - `GEMINI.md` — thin `@./AGENTS.md` wrapper for Gemini CLI (legacy, sunsets 2026-06-18).
 - `README.md` — user-facing readme; multi-CLI framing and quick start.
 - `CHANGELOG.md` — release history (Keep a Changelog format).
@@ -79,7 +79,7 @@ The "Personal Working Agreement" section above governs every agent. Project-spec
 
 ### Current Sprint State
 
-Lives in `CLAUDE.md` under `## Current Sprint Status`. AGENTS.md does NOT change session-to-session; CLAUDE.md does.
+For active sprint context (current session, what was just shipped, next-session priorities) → sprint-status block at the bottom of this file (between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->`). That block is updated per session via the `/wrap` skill. All other sections of this file are bootstrap-only and should be edited in a SEPARATE commit when project rules / structure change.
 
 ### Source Spec
 
@@ -185,3 +185,40 @@ Manual until automated tests are added. The acceptance criteria per phase live i
 - No secrets in this repo. `.env` patterns are still in `.gitignore` defensively.
 - Existing clones that still have the old local hook can remove it with `rm .git/hooks/pre-commit`.
 - `.claude/*` is gitignored except `settings.json` and `skills/` — keeps personal session data (history.jsonl, ide/, etc.) out of git while still letting `skills/` be shipped.
+
+<!-- sprint-status:start -->
+
+## Current Sprint Status
+
+**Last Updated:** 2026-06-25 (Session 2 — v4 SSOT migration: sprint state moved from CLAUDE.md to AGENTS.md)
+**Active Work:** cc-templates v4 shipped. Bootstrap layout migrated — new projects get sprint-status block in AGENTS.md; `CLAUDE.md` is now a 1-line `@AGENTS.md` pointer. Aligns with cross-tool AGENTS.md standard (Linux Foundation Agentic AI Foundation, 2025-12; 60k+ repos).
+**Previous Milestone:** ✅ v3.9.1 (2026-05-29) — rolling-window enforcement fix.
+
+### Session 2 (2026-06-25) highlights
+
+- **Sprint state moved CLAUDE.md → AGENTS.md** (sprint-status block between `<!-- sprint-status:start -->` / `<!-- sprint-status:end -->` markers). Matches the pattern downstream consumers (Anchor, jsdesign-landing-page) were already running ad-hoc.
+- **`.claude/skills/wrap/SKILL.md` rewritten.** Hardcoded AGENTS-SSOT target; archive step + rolling-window step removed (7 steps → 5). 119 lines → 89 lines.
+- **`templates/CLAUDE.md.template` reduced 28 lines → 1 line** (just `@AGENTS.md`). Sprint-status block + auto-update instructions removed — moved into `templates/AGENTS.md.template`.
+- **`templates/AGENTS.md.template` gains sprint-status block** at bottom with Session 1 placeholder + Sprint Wrap Procedure section.
+- **`.claude/skills/ready/SKILL.md`** + **`.claude/skills/setup-multi-agent/SKILL.md`** + **`templates/setup-instructions.md`** updated for new pattern (`{{TODAY}}` now in AGENTS.md, not CLAUDE.md).
+- **`.claude/sessions/session-history.md` removed** (stale 2024-12-17 pre-v3 entries; git history is the v4 archive).
+- **cc-templates dogfooded** — own AGENTS.md / CLAUDE.md migrated to match the template output.
+
+### Next session start
+
+> Smoke-test the v4 bootstrap end-to-end: run `/setup-multi-agent` against a scratch directory and verify the produced AGENTS.md has the sprint-status block + CLAUDE.md is one line. Existing v3.x projects (Anchor, jsdesign-landing-page) already AGENTS-SSOT in practice — no downstream migration needed.
+>
+> Open items: Gemini CLI sunset has passed (2026-06-18, 7 days ago) — decide whether to drop `templates/GEMINI.md.template` + own `GEMINI.md` in a follow-up commit, or leave one more grace cycle for any straggler users.
+
+---
+
+### Sprint Wrap Procedure
+
+Note: Claude Code's built-in `/recap` is a one-line synopsis (auto-fires after terminal idle); it does NOT do this full wrap. For a real session wrap, invoke the `/wrap` skill.
+
+1. Update "Last Updated" / "Active Work" / "Previous Milestone" header lines with the new session.
+2. Replace "Session N highlights" + "Next session start" blocks with the new session's content. Older sessions live in git history — retrieve via `git log --grep="wrap Session" -- AGENTS.md` then `git show <hash> -- AGENTS.md`.
+3. Keep this sprint-status block under ~80 lines (highlights + next-session triggers only; project context lives in the rest of this file).
+4. Commit subject: `chore: wrap Session N — <one-line summary>`. Wrap commits should only touch this sprint-status block — if other sections of AGENTS.md need an update (project rules, sub-agent roles, etc.), make a SEPARATE commit before/after the wrap.
+
+<!-- sprint-status:end -->

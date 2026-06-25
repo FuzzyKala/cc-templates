@@ -1,6 +1,6 @@
 ---
 name: ready
-description: Project context scanner — read AGENTS.md (canonical) and CLAUDE.md (sprint state), report git status, list installed skills, and check availability of the preferred CLI tools (gh / gws / ntn / rclone / Playwright / acli). Run at session start to confirm config is loaded and the toolchain is ready.
+description: Project context scanner — read AGENTS.md (canonical + sprint-status block), report git status, list installed skills, and check availability of the preferred CLI tools (gh / gws / ntn / rclone / Playwright / acli). Run at session start to confirm config is loaded and the toolchain is ready.
 ---
 
 # /ready — Project context scanner
@@ -17,9 +17,9 @@ Produce a concise (under ~30 lines) status report so the user can see, at a glan
 
 ### 2. Read current sprint state
 
-- Read `CLAUDE.md`. Extract the `## Current Sprint Status` section.
+- Read `AGENTS.md`. Extract the sprint-status block between `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->`.
 - Pull: Last Updated line, Active Work line, the most recent session's bullet list.
-- If `CLAUDE.md` does not exist or has no Current Sprint Status section, note that.
+- If `AGENTS.md` has no sprint-status markers, note that (the project may pre-date the v4 SSOT migration; suggest the user run `/setup-multi-agent` or migrate manually).
 
 ### 3. Git state
 
@@ -73,7 +73,7 @@ Use this exact shape. Keep it under 30 lines total.
 **Preferred CLIs:**
   gh ✓  gws ✓  rclone ✓  ntn ✗  acli ✗  playwright ✓
 
-**Next:** <one line from CLAUDE.md's "Next session start" block>
+**Next:** <one line from AGENTS.md sprint-status block's "Next session start" section>
 ```
 
 If a section has no data (e.g., no installed skills), write `(none)` instead of omitting the line.
@@ -82,5 +82,5 @@ If a section has no data (e.g., no installed skills), write `(none)` instead of 
 
 - Do not run setup, install, or fix anything. `/ready` is read-only.
 - Do not count "specialist agents" or validate any v2-era 5-agent topology.
-- Do not load or modify `session-history.md` — that's for `/wrap`, not `/ready`.
+- Do not load or modify any session-history file — under the v4 SSOT pattern there isn't one; older sessions live in git history.
 - Do not exceed ~30 lines of output. The user wants a snapshot, not a deep-dive.
