@@ -29,14 +29,14 @@ Wrap up a working session: distill what happened, codify learnings as persistent
   N=$(bash ~/.agents/skills/wrap/scripts/wrap.sh pre-flight)
   ```
   (Claude Code: also `N=$(bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh pre-flight)`)
-- The script validates git availability, remote origin, sprint-status markers, detects last session N, checks idempotency, and initializes `/tmp/wrap-context.json`. Prints the next session number to stdout.
+- The script validates git availability, remote origin, sprint-status markers, detects last session N, checks idempotency, and initializes the context bus (path from `$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`). Prints the next session number to stdout.
 - If the script exits non-zero, halt and read the error message.
 - Store N for use in Steps 1 and 3.
 
 ### Step 1: Distill session + codify memory (LLM work)
 
 - `mkdir -p .agent-memory/` — ensure the memory directory exists.
-- Write the 3-label sprint-status update into `/tmp/wrap-context.json` under the `sprint_status_update` field:
+- Write the 3-label sprint-status update into the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) under the `sprint_status_update` field:
   ```json
   {
     "sprint_status_update": {
@@ -66,7 +66,7 @@ bash ~/.agents/skills/wrap/scripts/wrap.sh update-agents-md <session-N> [--dry-r
 
 (Claude Code: also `bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh update-agents-md <session-N> [--dry-run]`)
 
-The script reads `/tmp/wrap-context.json` from Step 0 and 1, parses the `sprint_status_update` payload, performs awk sed-replace on `AGENTS.md`, no-op detection, 3-tier size guard, marker sanity check, then `git add` + `git commit` AGENTS.md. The commit message is auto-generated from the `last_shipped` field of the payload.
+The script reads the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) from Step 0 and 1, parses the `sprint_status_update` payload, performs awk sed-replace on `AGENTS.md`, no-op detection, 3-tier size guard, marker sanity check, then `git add` + `git commit` AGENTS.md. The commit message is auto-generated from the `last_shipped` field of the payload.
 
 ### Step 3: Push
 
