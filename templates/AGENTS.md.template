@@ -183,6 +183,25 @@ When a service offers both a CLI and an MCP server, prefer the CLI. Reasons:
 - Never commit secrets. Use `.env.local` (gitignored) and document required env vars in a `.env.example`.
 - Verify the `.gitignore` excludes `.claude/*` (except `settings.json`), `.gemini/`, and `.agents/`. The `cc-templates` `gitignore-additions.txt` covers this.
 
+## When Wrapping
+
+Run `/wrap` at session end to:
+1. Distill what shipped, next steps, and carry-forwards.
+2. Codify learnings to `.agent-memory/<slug>.md` (memory SSOT).
+3. Update the `## Current Sprint Status` block below.
+4. Commit and push.
+
+No human review gates — fully automatic. Preview changes with `--dry-run`: check the planned AGENTS.md diff, memory candidates, and size before committing.
+
+## Memory
+
+Session learnings are stored at `.agent-memory/INDEX.md` (cross-reference) and `.agent-memory/<slug>.md` (individual entries).
+
+- **Claude Code**: `ln -s .agent-memory ~/.claude/projects/<PROJECT_SLUG>/memory` (one-time setup for auto-load).
+- **OpenCode**: add `"instructions": [".agent-memory/INDEX.md"]` to `opencode.json`.
+- **Codex / agy**: review `.agent-memory/` directly via file glob.
+- **baku users**: run `baku incremental` after each session to sync to vector index.
+
 <!-- sprint-status:start -->
 
 ## Current Sprint Status
