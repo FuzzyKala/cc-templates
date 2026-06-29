@@ -71,9 +71,22 @@ do_update_agents_md() {
   grep -q "sprint-status:end" "$AGENTS" \
     || { echo "Error: <!-- sprint-status:end --> marker not found" >&2; exit 1; }
 
-  [[ -f "$PAYLOAD_FILE" ]] || { echo "Error: payload file $PAYLOAD_FILE not found" >&2; exit 1; }
-  SPRINT=$(cat "$PAYLOAD_FILE")
-  [[ -n "$SPRINT" ]] || { echo "Error: empty payload" >&2; exit 1; }
+  local SPRINT=""
+  local SUMMARY=""
+  if [[ -f "/tmp/wrap-context.json" ]]; then
+    local LAST_SHIPPED=$(jq -r '.sprint_status_update.last_shipped' /tmp/wrap-context.json)
+    local NEXT_ITEM=$(jq -r '.sprint_status_update.next' /tmp/wrap-context.json)
+    local CARRY_FORWARDS=$(jq -r '.sprint_status_update.carry_forwards | join(" · ")' /tmp/wrap-context.json)
+    
+    SPRINT="**Last shipped**: ${LAST_SHIPPED}
+**Next**: ${NEXT_ITEM}
+**Carry-forwards**: ${CARRY_FORWARDS}"
+    SUMMARY="${LAST_SHIPPED}"
+  else
+    [[ -f "$PAYLOAD_FILE" ]] || { echo "Error: payload file $PAYLOAD_FILE not found" >&2; exit 1; }
+    SPRINT=$(cat "$PAYLOAD_FILE")
+    [[ -n "$SPRINT" ]] || { echo "Error: empty payload" >&2; exit 1; }
+  fi
 
   TMP=$(mktemp /tmp/wrap-agents-XXXXXX) || { echo "Error: mktemp failed" >&2; exit 1; }
   trap 'rm -f "$TMP"' EXIT
@@ -118,7 +131,9 @@ do_update_agents_md() {
 
   mv "$TMP" "$AGENTS"
 
-  SUMMARY=$(head -1 "$PAYLOAD_FILE" | sed 's/^\*\*Last shipped\*\*: //' | head -1 | cut -c1-120)
+  if [[ -z "$SUMMARY" ]]; then
+    SUMMARY=$(head -1 "$PAYLOAD_FILE" | sed 's/^\*\*Last shipped\*\*: //' | head -1 | cut -c1-120)
+  fi
   git add AGENTS.md
   git commit -m "chore: wrap Session ${N} — ${SUMMARY}" || true
   echo "AGENTS.md updated and committed ($SIZE bytes)"
@@ -128,6 +143,9 @@ do_commit_push() {
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "[dry-run] Would push:"
     echo "  git push"
+    if [[ -x "scripts/wrap-hooks.sh" ]]; then
+      echo "[dry-run] Would trigger hook: ./scripts/wrap-hooks.sh post --session N --context /tmp/wrap-context.json --dry-run"
+    fi
     exit 0
   fi
 
@@ -158,6 +176,18 @@ do_commit_push() {
   done
 
   git log -1 && git status
+
+  if [[ -x "scripts/wrap-hooks.sh" ]]; then
+    local N=""
+    if [[ -f "/tmp/wrap-context.json" ]]; then
+      N=$(jq -r '.session' /tmp/wrap-context.json)
+    else
+      N=$(git log --format=%s --grep="^chore: wrap Session [0-9]" -1 2>/dev/null \
+        | grep -oE '[0-9]+' | head -1 || echo "0")
+    fi
+    echo "→ Running local post-push hook for Session ${N}..."
+    ./scripts/wrap-hooks.sh post --session "${N}" --context /tmp/wrap-context.json || echo "⚠ Hook failed" >&2
+  fi
 }
 
 case "$SUB" in

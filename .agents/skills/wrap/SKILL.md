@@ -17,29 +17,43 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 
 ## Steps
 
-### Step 0: Pre-flight
+### Step 0: Pre-flight & Prep
 
 - Record baseline commit: `git rev-parse HEAD`. If anything goes wrong, `git reset --hard <baseline>` fully undoes the wrap.
+- If `scripts/wrap-prep.sh` exists, execute it to initialize the JSON context data bus:
+  ```bash
+  npm run wrap:prep
+  ```
 - Run the deterministic detection script:
   ```bash
   N=$(bash ~/.agents/skills/wrap/scripts/wrap.sh pre-flight)
   ```
   (Claude Code: also `N=$(bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh pre-flight)`)
-- The script validates git availability, remote origin, sprint-status markers, detects last session N, and checks idempotency. Prints the next session number to stdout.
+- The script validates git availability, remote origin, sprint-status markers, detects last session N, checks idempotency, and initializes `/tmp/wrap-context.json`. Prints the next session number to stdout.
 - If the script exits non-zero, halt and read the error message.
 - Store N for use in Steps 1 and 3.
 
 ### Step 1: Distill session + codify memory (LLM work)
 
 - `mkdir -p .agent-memory/` — ensure the memory directory exists.
-- Write 3-label sprint-status payload to `/tmp/wrap-payload.txt`:
+- Write the 3-label sprint-status update into `/tmp/wrap-context.json` under the `sprint_status_update` field:
+  ```json
+  {
+    "sprint_status_update": {
+      "last_shipped": "<one-line summary of what shipped this session>",
+      "next": "<single D-N slug or task for next session>",
+      "carry_forwards": ["<slug-1>", "<slug-2>"]
+    }
+  }
   ```
-  **Last shipped**: <one-line summary of what shipped this session>
-  **Next**: <single D-N slug or task for next session>
-  **Carry-forwards**: <key deferred D-Ns, 1 line each>
+- Identify memory candidates. For each, write `.agent-memory/<slug>.md` with frontmatter + body.
+- Read `.agent-memory/INDEX.md` first, then append new memory entries at the end of the file in bullet list format:
+  `- **<slug>** (reference/feedback/project/user): <summary>`
+- Run the D-N auto-archive script to move completed D-Ns to the archive:
+  ```bash
+  npx tsx scripts/archive-resolved-dns.ts --apply
   ```
-- Identify memory candidates. For each, write `.agent-memory/<slug>.md` with frontmatter + body. Append to `.agent-memory/INDEX.md`.
-- If memory was written: `git add .agent-memory/` and `git commit -m "chore(memory): codify N entries from Session N"`. Do NOT push yet.
+- If memory or archive was written: `git add .agent-memory/ _bmad-output/implementation-artifacts/` and `git commit -m "chore(memory): codify N entries and archive D-Ns from Session N"`. Do NOT push yet.
 - If no memory candidates, skip. If `.agent-memory/INDEX.md` exceeds 200 lines, archive oldest 50% to `.agent-memory/ARCHIVE.md` first.
 
 ### Step 2: Update AGENTS.md + commit
@@ -52,7 +66,7 @@ bash ~/.agents/skills/wrap/scripts/wrap.sh update-agents-md <session-N> [--dry-r
 
 (Claude Code: also `bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh update-agents-md <session-N> [--dry-run]`)
 
-The script reads `/tmp/wrap-payload.txt` from Step 1, performs awk sed-replace, no-op detection, 3-tier size guard, marker sanity check, then `git add` + `git commit` AGENTS.md. The commit message is auto-generated from the first line of the payload.
+The script reads `/tmp/wrap-context.json` from Step 0 and 1, parses the `sprint_status_update` payload, performs awk sed-replace on `AGENTS.md`, no-op detection, 3-tier size guard, marker sanity check, then `git add` + `git commit` AGENTS.md. The commit message is auto-generated from the `last_shipped` field of the payload.
 
 ### Step 3: Push
 

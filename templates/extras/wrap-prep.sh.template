@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# scripts/wrap-prep.sh — Pre-populate /tmp/wrap-context.json context bus for next /wrap.
+# Read-only. Outputs: /tmp/wrap-context.json
+
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+LAST_WRAP_SHA=$(git log --format=%H --grep="^chore: wrap Session " -1 || true)
+LAST_WRAP_N=$(git log --format=%s | grep -aoE "^chore: wrap Session [0-9]+ " | head -1 | grep -oE "[0-9]+" | head -1 || true)
+
+if [[ -z "$LAST_WRAP_SHA" ]] || [[ -z "$LAST_WRAP_N" ]]; then
+  echo "Error: cannot find last wrap commit in git log" >&2
+  exit 1
+fi
+
+NEXT_N=$((LAST_WRAP_N + 1))
+echo "ℹ Last wrap = Session $LAST_WRAP_N ($LAST_WRAP_SHA)" >&2
+echo "ℹ Drafting for next wrap = Session $NEXT_N" >&2
+echo "" >&2
+
+# Gather commits
+N_COMMITS=$(git rev-list --count "$LAST_WRAP_SHA..HEAD" 2>/dev/null || echo 0)
+COMMITS_JSON=$(git log --format='%h %s' "$LAST_WRAP_SHA..HEAD" | jq -R . | jq -s .)
+
+# Gather memory files (modified + untracked)
+MEMORY_FILES_JSON=$( (git diff --name-only "$LAST_WRAP_SHA..HEAD" -- .agent-memory/ 2>/dev/null || true; git ls-files --others --exclude-standard -- .agent-memory/ 2>/dev/null || true) | sort -u | jq -R . | jq -s .)
+
+# Active deferred count (customize per project, default 0)
+ACTIVE_TOTAL=0
+if [[ -f "_bmad-output/implementation-artifacts/deferred-work.md" ]]; then
+  ACTIVE_TOTAL=$(grep -E "^\| \[D-" _bmad-output/implementation-artifacts/deferred-work.md 2>/dev/null \
+    | awk -F'|' '$3 ~ /HIGH|MEDIUM/ {n++} END {print n+0}' || echo 0)
+fi
+
+# Construct JSON context
+jq -n \
+  --arg session "$NEXT_N" \
+  --arg baseline_sha "$LAST_WRAP_SHA" \
+  --argjson commits_count "$N_COMMITS" \
+  --argjson commits "$COMMITS_JSON" \
+  --argjson active_deferred_count "$ACTIVE_TOTAL" \
+  --argjson memory_files "$MEMORY_FILES_JSON" \
+  '{
+    session: ($session | tonumber),
+    baseline_sha: $baseline_sha,
+    commits_count: $commits_count,
+    commits: $commits,
+    active_deferred_count: $active_deferred_count,
+    git_deltas: {
+      memory_files: $memory_files
+    }
+  }' > /tmp/wrap-context.json
+
+echo "✓ Created /tmp/wrap-context.json data bus" >&2
+echo "Session number: $NEXT_N"
