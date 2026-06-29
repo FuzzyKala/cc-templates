@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # scripts/wrap-prep.sh — Pre-populate the JSON context bus for next /wrap.
 # Writes to $WRAP_CONTEXT_PATH (default: .local/wrap-context.json), then
-# exports WRAP_CONTEXT_PATH so downstream scripts resolve the same file.
-# Read-only. Exports: WRAP_CONTEXT_PATH
+# creates a symlink at /tmp/wrap-context.json (wrap.sh's default path) so
+# downstream scripts find the file without env var propagation.
+# Read-only.
 
 set -euo pipefail
 
@@ -60,7 +61,7 @@ CONTEXT_JSON=$(jq -n \
   }')
 
 echo "$CONTEXT_JSON" > "$CONTEXT_FILE"
-export WRAP_CONTEXT_PATH="$CONTEXT_FILE"
+ln -sf "$(git rev-parse --show-toplevel)/$CONTEXT_FILE" /tmp/wrap-context.json
 
-echo "✓ Created $CONTEXT_FILE data bus" >&2
+echo "✓ Created $CONTEXT_FILE data bus (symlinked at /tmp/wrap-context.json)" >&2
 echo "Session number: $NEXT_N"
