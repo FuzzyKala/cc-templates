@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # scripts/wrap-hooks.sh — Post-wrap hooks for project-specific automation.
-# Invoked by the generalized /wrap skill at Step 3 (post-hook).
+# Invoked by the generalized /wrap skill at Step 3 (post-hook). The context
+# file path is passed via --context (from $WRAP_CONTEXT_PATH in wrap.sh).
 #
 # Usage:
-#   bash scripts/wrap-hooks.sh post --context /tmp/wrap-context.json [--dry-run]
+#   bash scripts/wrap-hooks.sh post --context <path> [--dry-run]
+#   (--context is provided by wrap.sh from $WRAP_CONTEXT_PATH)
 
 set -euo pipefail
 

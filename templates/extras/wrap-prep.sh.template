@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# scripts/wrap-prep.sh — Pre-populate /tmp/wrap-context.json context bus for next /wrap.
-# Read-only. Outputs: /tmp/wrap-context.json
+# scripts/wrap-prep.sh — Pre-populate the JSON context bus for next /wrap.
+# Writes to $WRAP_CONTEXT_PATH (default: .local/wrap-context.json), then
+# exports WRAP_CONTEXT_PATH so downstream scripts resolve the same file.
+# Read-only. Exports: WRAP_CONTEXT_PATH
 
 set -euo pipefail
 
@@ -27,6 +29,10 @@ COMMITS_JSON=$(git log --format='%h %s' "$LAST_WRAP_SHA..HEAD" | jq -R . | jq -s
 # Gather memory files (modified + untracked)
 MEMORY_FILES_JSON=$( (git diff --name-only "$LAST_WRAP_SHA..HEAD" -- .agent-memory/ 2>/dev/null || true; git ls-files --others --exclude-standard -- .agent-memory/ 2>/dev/null || true) | sort -u | jq -R . | jq -s .)
 
+# Determine context file path (env var override with repo-relative fallback)
+CONTEXT_FILE="${WRAP_CONTEXT_PATH:-.local/wrap-context.json}"
+mkdir -p "$(dirname "$CONTEXT_FILE")"
+
 # Active deferred count (customize per project, default 0)
 ACTIVE_TOTAL=0
 if [[ -f "_bmad-output/implementation-artifacts/deferred-work.md" ]]; then
@@ -35,7 +41,7 @@ if [[ -f "_bmad-output/implementation-artifacts/deferred-work.md" ]]; then
 fi
 
 # Construct JSON context
-jq -n \
+CONTEXT_JSON=$(jq -n \
   --arg session "$NEXT_N" \
   --arg baseline_sha "$LAST_WRAP_SHA" \
   --argjson commits_count "$N_COMMITS" \
@@ -51,7 +57,10 @@ jq -n \
     git_deltas: {
       memory_files: $memory_files
     }
-  }' > /tmp/wrap-context.json
+  }')
 
-echo "✓ Created /tmp/wrap-context.json data bus" >&2
+echo "$CONTEXT_JSON" > "$CONTEXT_FILE"
+export WRAP_CONTEXT_PATH="$CONTEXT_FILE"
+
+echo "✓ Created $CONTEXT_FILE data bus" >&2
 echo "Session number: $NEXT_N"
