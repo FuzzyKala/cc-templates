@@ -55,34 +55,35 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 
 ### Step 3: Commit + push
 
-```bash
-BRANCH=$(git symbolic-ref --short HEAD)
-git add AGENTS.md
-git commit -m "chore: wrap Session N — <summary>"
+- Commit: `git add AGENTS.md && git commit -m "chore: wrap Session N — <summary>"`. Write a narrative body.
+- Push with retry:
 
-# Push with retry (transient errors only)
-MAX=3 BASE=2 attempt=0
-while [ $attempt -le $MAX ]; do
-  if git push origin "$BRANCH" 2>&1; then break; fi
-  attempt=$((attempt+1))
-  if [ $attempt -gt $MAX ]; then
-    echo "Push failed. Recovery:"
-    echo "  (1) rebase: git fetch origin && git rebase origin/$BRANCH && git push"
-    echo "  (2) auth: check git remote -v and credentials"
-    echo "  (3) PR fallback: gh pr create --fill"
-    echo "  (4) undo: git reset --hard <baseline>"
-    exit 2
-  fi
-  # classify error — only retry transient, not permanent
-  last_err=$(git push origin "$BRANCH" 2>&1 | tail -1)
-  echo "$last_err" | grep -qE "non-fast-forward|403|401|protected|pre-receive" && exit 2
-  sleep $((RANDOM % (BASE * 2**attempt < 30 ? BASE * 2**attempt : 30)))
-done
+  ```bash
+  BRANCH=$(git symbolic-ref --short HEAD)
+  MAX=3 BASE=2 attempt=0
+  while [ $attempt -le $MAX ]; do
+    if git push origin "$BRANCH" 2>&1; then break; fi
+    attempt=$((attempt+1))
+    if [ $attempt -gt $MAX ]; then
+      echo "Push failed. Recovery:"
+      echo "  (1) rebase: git fetch origin && git rebase origin/$BRANCH && git push"
+      echo "  (2) auth: check git remote -v and credentials"
+      echo "  (3) PR fallback: gh pr create --fill"
+      echo "  (4) undo: git reset --hard <baseline>"
+      exit 2
+    fi
+    last_err=$(git push origin "$BRANCH" 2>&1 | tail -1)
+    echo "$last_err" | grep -qE "non-fast-forward|403|401|protected|pre-receive" && exit 2
+    sleep $((RANDOM % (BASE * 2**attempt < 30 ? BASE * 2**attempt : 30)))
+  done
+  git log -1 && git status
+  ```
 
-git log -1 && git status
-```
-
-- Write a narrative commit body covering what shipped, key decisions, follow-ups. This is the primary session record.
+- **Post-hook** (project-specific, optional): If `scripts/wrap-hooks.sh` exists and is executable, invoke it:
+  ```bash
+  bash scripts/wrap-hooks.sh post --session <N>
+  ```
+  Failure is non-fatal (warn only). Pass `--dry-run` if in preview mode.
 
 ### Error recovery
 
