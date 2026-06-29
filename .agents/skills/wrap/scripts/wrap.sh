@@ -6,12 +6,20 @@
 #   bash scripts/wrap.sh commit-push [--dry-run]
 #
 # pre-flight: Detect last session N, validate repo + markers, print N to stdout.
-# update-agents-md: Reads /tmp/wrap-payload.txt, replaces sprint-status block,
-#   then git add + git commit AGENTS.md with auto-generated summary from payload.
+# update-agents-md: Reads JSON context bus (from $WRAP_CONTEXT_PATH or
+#   /tmp/wrap-context.json), replaces sprint-status block, then git add + git
+#   commit AGENTS.md with auto-generated summary from payload.
 # commit-push: git push with retry (AGENTS.md already committed).
+#
+# Environment:
+#   WRAP_CONTEXT_PATH  Path to the JSON context bus file.
+#                      Default: /tmp/wrap-context.json
+#   WRAP_PAYLOAD_FILE  Legacy text fallback path (used if WRAP_CONTEXT_PATH
+#                      file is missing). Default: /tmp/wrap-payload.txt
 
 set -euo pipefail
 
+CONTEXT_FILE="${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}"
 PAYLOAD_FILE="${WRAP_PAYLOAD_FILE:-/tmp/wrap-payload.txt}"
 AGENTS="AGENTS.md"
 
@@ -73,10 +81,10 @@ do_update_agents_md() {
 
   local SPRINT=""
   local SUMMARY=""
-  if [[ -f "/tmp/wrap-context.json" ]]; then
-    local LAST_SHIPPED=$(jq -r '.sprint_status_update.last_shipped' /tmp/wrap-context.json)
-    local NEXT_ITEM=$(jq -r '.sprint_status_update.next' /tmp/wrap-context.json)
-    local CARRY_FORWARDS=$(jq -r '.sprint_status_update.carry_forwards | join(" · ")' /tmp/wrap-context.json)
+  if [[ -f "$CONTEXT_FILE" ]]; then
+    local LAST_SHIPPED=$(jq -r '.sprint_status_update.last_shipped' "$CONTEXT_FILE")
+    local NEXT_ITEM=$(jq -r '.sprint_status_update.next' "$CONTEXT_FILE")
+    local CARRY_FORWARDS=$(jq -r '.sprint_status_update.carry_forwards | join(" · ")' "$CONTEXT_FILE")
     
     SPRINT="**Last shipped**: ${LAST_SHIPPED}
 **Next**: ${NEXT_ITEM}
@@ -144,7 +152,7 @@ do_commit_push() {
     echo "[dry-run] Would push:"
     echo "  git push"
     if [[ -x "scripts/wrap-hooks.sh" ]]; then
-      echo "[dry-run] Would trigger hook: ./scripts/wrap-hooks.sh post --session N --context /tmp/wrap-context.json --dry-run"
+      echo "[dry-run] Would trigger hook: ./scripts/wrap-hooks.sh post --session N --context ${CONTEXT_FILE} --dry-run"
     fi
     exit 0
   fi
@@ -179,14 +187,14 @@ do_commit_push() {
 
   if [[ -x "scripts/wrap-hooks.sh" ]]; then
     local N=""
-    if [[ -f "/tmp/wrap-context.json" ]]; then
-      N=$(jq -r '.session' /tmp/wrap-context.json)
+    if [[ -f "$CONTEXT_FILE" ]]; then
+      N=$(jq -r '.session' "$CONTEXT_FILE")
     else
       N=$(git log --format=%s --grep="^chore: wrap Session [0-9]" -1 2>/dev/null \
         | grep -oE '[0-9]+' | head -1 || echo "0")
     fi
     echo "→ Running local post-push hook for Session ${N}..."
-    ./scripts/wrap-hooks.sh post --session "${N}" --context /tmp/wrap-context.json || echo "⚠ Hook failed" >&2
+    ./scripts/wrap-hooks.sh post --session "${N}" --context "$CONTEXT_FILE" || echo "⚠ Hook failed" >&2
   fi
 }
 
