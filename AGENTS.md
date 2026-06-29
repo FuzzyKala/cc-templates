@@ -132,7 +132,7 @@ cc-templates/
 ├── CHANGELOG.md           ← release history
 ├── LICENSE                ← MIT
 ├── .version               ← source-of-truth version (v3.0.0)
-├── .gitignore             ← includes .claude/*, .gemini/, .agents/
+├── .gitignore             ← includes .claude/*, .gemini/
 ├── .claude/
 │   └── skills/
 │       ├── wrap/SKILL.md
@@ -176,7 +176,7 @@ Manual until automated tests are added. The acceptance criteria per phase live i
 
 - No secrets in this repo. `.env` patterns are still in `.gitignore` defensively.
 - Existing clones that still have the old local hook can remove it with `rm .git/hooks/pre-commit`.
-- `.claude/*` is gitignored except `settings.json` and `skills/` — keeps personal session data (history.jsonl, ide/, etc.) out of git while still letting `skills/` be shipped.
+- `.claude/*` is gitignored except `settings.json` and `skills/` — keeps personal session data (history.jsonl, ide/, etc.) out of git while still letting symlinks to `.agents/skills/` be shipped.
 
 <!-- sprint-status:start -->
 
