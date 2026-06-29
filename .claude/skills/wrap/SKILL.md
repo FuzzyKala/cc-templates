@@ -20,13 +20,15 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 ### Step 0: Pre-flight
 
 - Record baseline commit: `git rev-parse HEAD`. If anything goes wrong, `git reset --hard <baseline>` fully undoes the wrap.
-- Detect session N: `git log --format=%s --grep="^chore: wrap Session [0-9]+ —" -1 | grep -oE "[0-9]+"`. Fallback: read `**Last Updated:**` from AGENTS.md.
+- Check sprint-status markers exist in AGENTS.md: `grep -q "sprint-status:start" AGENTS.md`. If missing, halt: "AGENTS.md missing sprint-status markers. Run setup-multi-agent or add markers manually." Do NOT proceed until markers exist.
+- Detect session N via `git log --format=%s --grep="^chore: wrap Session [0-9]+ —" -1 | grep -oE "[0-9]+"`. If empty, fallback to AGENTS.md `**Last Updated:**` line and parse `(Session N —`. If both empty, default to Session 1.
 - Validate: new N = last N + 1. If git log already has `wrap Session N`, bail (idempotency guard).
 - Check `command -v git` — if missing, halt. Check `git remote get-url origin` — if missing, halt with setup instructions.
 - Run `git diff AGENTS.md` — if there are unstaged changes, warn before overwriting.
 
 ### Step 1: Distill session + codify memory
 
+- `mkdir -p .agent-memory/` — ensure the memory directory exists.
 - Write 3-label sprint-status payload from conversation:
   ```
   **Last shipped**: <one-line summary of what shipped this session>
@@ -36,7 +38,6 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 - Identify memory candidates. For each, write `.agent-memory/<slug>.md` with frontmatter (`name`, `description`, `metadata.type`) + body (rule/fact → Why → How to apply). Append `- [Title](<slug>.md) — <hook>` to `.agent-memory/INDEX.md`.
 - If memory was written: `git add .agent-memory/` and `git commit -m "chore(memory): codify N entries from Session N"`. Do NOT push yet. If pre-commit hooks block, fix and `git commit --amend`.
 - If no memory candidates, skip. If `.agent-memory/INDEX.md` will exceed 200 lines after append, archive oldest 50% to `.agent-memory/ARCHIVE.md` first.
-- If `--dry-run` was requested: show memory candidates and commit preview, then stop — do NOT write, commit, or push.
 
 ### Step 2: Update AGENTS.md
 
@@ -44,47 +45,56 @@ Wrap up a working session: distill what happened, codify learnings as persistent
   ```bash
   awk -v sprint="$PAYLOAD" '/<!-- sprint-status:start -->/{print; print sprint; in_block=1; next} /<!-- sprint-status:end -->/{in_block=0; print; next} !in_block{print}' AGENTS.md > tmp
   ```
+- Verify tmp file exists: `[ -f tmp ]`. If missing, halt: "awk failed to create temp file — check awk availability and AGENTS.md sprint-status markers."
 - **No-op detection**: `cmp -s AGENTS.md tmp || diff -q AGENTS.md tmp >/dev/null`. If identical, bail: "No-op wrap — payload unchanged."
 - **Size guard**: `wc -c < tmp`. `≥32768` HARD BLOCK (Codex 32 KB cap, no override). `≥30720` WARN + refuse (override via `AGENTS_MD_CAP_OVERRIDE=1`). `≥28672` INFO banner.
+- **If `--dry-run`**: show AGENTS.md diff, memory candidates, commit message, post-edit size, symlink status — then stop. Write nothing, commit nothing, push nothing.
 - Write: `mv tmp AGENTS.md`.
 - **Marker sanity**: `grep -q "sprint-status:start" AGENTS.md && grep -q "sprint-status:end" AGENTS.md`. If either missing, halt: "Markers corrupted — run `git checkout AGENTS.md` to recover."
+- **Symlink check** (non-blocking): If `~/.claude/projects/` exists but no symlink to `.agent-memory/`, warn: "Claude Code auto-load: run `ln -s .agent-memory ~/.claude/projects/<project-slug>/memory`."
 
 ### Step 3: Commit + push
 
-- `git add AGENTS.md`
-- Commit: `git commit -m "chore: wrap Session N — <summary>"`. Write a narrative body covering what shipped, key decisions, and follow-ups. This is the primary session record.
-- Push with retry (transient errors only):
+```bash
+BRANCH=$(git symbolic-ref --short HEAD)
+git add AGENTS.md
+git commit -m "chore: wrap Session N — <summary>"
 
-  ```bash
-  MAX=3 BASE=2 attempt=0
-  while [ $attempt -le $MAX ]; do
-    if git push origin main 2>&1; then break; fi
-    attempt=$((attempt+1))
-    if [ $attempt -gt $MAX ]; then
-      echo "Push failed. Recovery: (1) rebase if non-fast-forward: git fetch && git rebase origin/main && git push"
-      echo "(2) auth: check git remote -v and credentials. (3) undo: git reset --hard <baseline>"
-      exit 2
-    fi
-    # only retry transient errors — not on non-fast-forward/auth/hook-rejection
-    last_err=$(git push origin main 2>&1 | tail -1)
-    echo "$last_err" | grep -qE "non-fast-forward|403|401|protected|pre-receive" && exit 2
-    sleep $((RANDOM % (BASE * 2**attempt < 30 ? BASE * 2**attempt : 30)))
-  done
-  ```
+# Push with retry (transient errors only)
+MAX=3 BASE=2 attempt=0
+while [ $attempt -le $MAX ]; do
+  if git push origin "$BRANCH" 2>&1; then break; fi
+  attempt=$((attempt+1))
+  if [ $attempt -gt $MAX ]; then
+    echo "Push failed. Recovery:"
+    echo "  (1) rebase: git fetch origin && git rebase origin/$BRANCH && git push"
+    echo "  (2) auth: check git remote -v and credentials"
+    echo "  (3) PR fallback: gh pr create --fill"
+    echo "  (4) undo: git reset --hard <baseline>"
+    exit 2
+  fi
+  # classify error — only retry transient, not permanent
+  last_err=$(git push origin "$BRANCH" 2>&1 | tail -1)
+  echo "$last_err" | grep -qE "non-fast-forward|403|401|protected|pre-receive" && exit 2
+  sleep $((RANDOM % (BASE * 2**attempt < 30 ? BASE * 2**attempt : 30)))
+done
 
-- After push: `git log -1` to verify commit, `git status` to confirm clean tree.
+git log -1 && git status
+```
+
+- Write a narrative commit body covering what shipped, key decisions, follow-ups. This is the primary session record.
 
 ### Error recovery
 
-- **Amendment** (wrong payload already committed): `git commit --amend -m "chore: wrap Session N — <corrected>"` then `git push --force-with-lease`.
-- **Blocked** (pre-commit hook, lint failure): fix issue, `git commit --amend`, re-run push.
-- **Stale push** (remote advanced): `git fetch origin && git rebase origin/main && git push`.
-- **Undo everything**: `git reset --hard <baseline>`. Memory files in `.agent-memory/` are untracked if not committed — remove manually if needed: `rm -rf .agent-memory/`.
+- **Amendment** (wrong payload committed): `git commit --amend -m "chore: wrap Session N — <corrected>"` then `git push --force-with-lease`.
+- **Blocked** (pre-commit hook, lint failure): fix, `git commit --amend`, re-run push.
+- **Stale push** (remote advanced): `git fetch origin && git rebase origin/$BRANCH && git push`.
+- **Undo everything**: `git reset --hard <baseline>`. Remove orphan memory files if needed: `rm -rf .agent-memory/`.
 
 ## Acceptance check
 
 - AGENTS.md sprint-status block opens with new session. All other sections byte-identical.
 - CLAUDE.md byte-identical.
 - `.agent-memory/<slug>.md` + `INDEX.md` exist if memory was codified.
-- `git log -1` shows `chore: wrap Session N — ...`; memory commit (if any) sits behind it. `git status` clean.
-- `git log origin/main..HEAD` empty after push.
+- `git log -1` shows `chore: wrap Session N — ...`. `git status` clean.
+- `git log origin/$BRANCH..HEAD` empty after push.
