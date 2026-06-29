@@ -36,7 +36,11 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 ### Step 1: Distill session + codify memory (LLM work)
 
 - `mkdir -p .agent-memory/` — ensure the memory directory exists.
-- Write the 3-label sprint-status update into the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) under the `sprint_status_update` field:
+- Write the 3-label sprint-status update into the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) under the `sprint_status_update` field. Use `jq-update` (ships with `wrap.sh`) to edit JSON in-place without breaking symlinks:
+  ```bash
+  jq-update "${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}" '. + {sprint_status_update: {last_shipped: "...", next: "...", carry_forwards: [...]}}'
+  ```
+  (Or use `jq '...' > file` redirect which preserves symlinks. Avoid `mv` — it replaces the symlink with a regular file.)
   ```json
   {
     "sprint_status_update": {

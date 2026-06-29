@@ -23,6 +23,15 @@ CONTEXT_FILE="${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}"
 PAYLOAD_FILE="${WRAP_PAYLOAD_FILE:-/tmp/wrap-payload.txt}"
 AGENTS="AGENTS.md"
 
+# jq-update: edit a JSON file in-place while preserving symlinks.
+# Uses cat > to write through the symlink target rather than mv
+# which would replace the symlink with a regular file.
+jq-update() {
+  local f="$1"; shift
+  local tmp; tmp=$(mktemp)
+  jq "$@" "$f" > "$tmp" && cat "$tmp" > "$f" && rm "$tmp"
+}
+
 usage() {
   echo "Usage: $0 {pre-flight|update-agents-md|commit-push} [--dry-run]" >&2
   exit 1
@@ -73,6 +82,10 @@ do_pre_flight() {
 
 do_update_agents_md() {
   local N="${1:-}"
+  # Ensure compatibility symlink at default path (repairs mv damage)
+  if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]]; then
+    ln -sf "$CONTEXT_FILE" /tmp/wrap-context.json 2>/dev/null || true
+  fi
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
   grep -q "sprint-status:start" "$AGENTS" \
     || { echo "Error: <!-- sprint-status:start --> marker not found" >&2; exit 1; }
@@ -186,6 +199,10 @@ do_commit_push() {
   git log -1 && git status
 
   if [[ -x "scripts/wrap-hooks.sh" ]]; then
+    # Ensure compatibility symlink at default path (repairs mv damage)
+    if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]]; then
+      ln -sf "$CONTEXT_FILE" /tmp/wrap-context.json 2>/dev/null || true
+    fi
     local N=""
     if [[ -f "$CONTEXT_FILE" ]]; then
       N=$(jq -r '.session' "$CONTEXT_FILE")
