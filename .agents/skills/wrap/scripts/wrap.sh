@@ -82,8 +82,9 @@ do_pre_flight() {
 
 do_update_agents_md() {
   local N="${1:-}"
-  # Ensure compatibility symlink at default path (repairs mv damage)
-  if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]]; then
+  # Repair broken symlink: if /tmp/wrap-context.json is not a symlink but
+  # CONTEXT_FILE points elsewhere, the agent's mv replaced the link.
+  if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]] && ! [[ -L "/tmp/wrap-context.json" ]]; then
     ln -sf "$CONTEXT_FILE" /tmp/wrap-context.json 2>/dev/null || true
   fi
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
@@ -199,8 +200,7 @@ do_commit_push() {
   git log -1 && git status
 
   if [[ -x "scripts/wrap-hooks.sh" ]]; then
-    # Ensure compatibility symlink at default path (repairs mv damage)
-    if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]]; then
+    if [[ -f "$CONTEXT_FILE" ]] && [[ "$CONTEXT_FILE" != "/tmp/wrap-context.json" ]] && ! [[ -L "/tmp/wrap-context.json" ]]; then
       ln -sf "$CONTEXT_FILE" /tmp/wrap-context.json 2>/dev/null || true
     fi
     local N=""
