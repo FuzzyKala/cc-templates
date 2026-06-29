@@ -21,9 +21,9 @@ Step 0 below locates that directory. If any of the three files is missing after 
 
 ### 0. Locate the templates directory
 
-This skill is usually invoked from a symlinked install at `~/.claude/skills/setup-multi-agent/` that points back into the cct repo, so `templates/` is NOT a sibling of `SKILL.md`. Resolve the real cct repo root by following the skill's own symlink and walking up three levels.
+This skill is usually invoked from a symlinked install at the skill directory (via symlink chain) that points back into the cct repo, so `templates/` is NOT a sibling of `SKILL.md`. Resolve the real cct repo root by following the skill's own symlink and walking up three levels.
 
-The harness reports the skill's base directory at invocation (e.g., `Base directory for this skill: /home/<user>/.claude/skills/setup-multi-agent`). Pass that path through `readlink -f` and ascend three directories — the skill lives at `<cct-repo>/.claude/skills/setup-multi-agent/`, so up-three lands at `<cct-repo>`:
+The harness reports the skill's base directory at invocation. Pass that path through `readlink -f` and ascend three directories — the skill lives at `<cct-repo>/.agents/skills/setup-multi-agent/`, so up-three lands at `<cct-repo>`:
 
 ```bash
 # Replace <skill-base-dir> with the path the harness reported at invocation.
@@ -44,7 +44,7 @@ done
 echo "Templates dir resolved: ${TEMPLATES_DIR}"
 ```
 
-Use the resolved `${TEMPLATES_DIR}` (or the absolute path the snippet prints) in all subsequent steps. This works whether the skill is invoked from a symlinked install or directly from inside the cct repo; the `readlink -f` step is what lets symlinked installs resolve to the real cct repo root instead of `~/.claude/skills/`.
+Use the resolved `${TEMPLATES_DIR}` (or the absolute path the snippet prints) in all subsequent steps. This works whether the skill is invoked from a symlinked install or directly from inside the cct repo; the `readlink -f` step is what lets symlinked installs resolve to the real cct repo root instead of the symlink path.
 
 ### 1. Collect inputs
 
@@ -123,5 +123,5 @@ Next steps:
 ## What NOT to do
 
 - Do not install v2's 5 specialist agents. That pattern is gone in v3.
-- Do not copy the `.claude/skills/` directory into the new project. Skills are repo-local to cc-templates; if the new project wants `/wrap` etc, the user clones or symlinks separately. (Future work: a `skills-bundle` template.)
+- Do not copy the skills directory into the new project. Skills are repo-local to cc-templates; if the new project wants `/wrap` etc, the user clones or symlinks separately. (Future work: a `skills-bundle` template.)
 - Do not run the verification commands yourself in this same session — the user runs them in a fresh terminal so context-load is honest.

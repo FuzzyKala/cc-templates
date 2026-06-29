@@ -20,10 +20,14 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 ### Step 0: Pre-flight
 
 - Record baseline commit: `git rev-parse HEAD`. If anything goes wrong, `git reset --hard <baseline>` fully undoes the wrap.
-- Detect session N via `git log --format=%s --grep="^chore: wrap Session [0-9]+ —" -1 | grep -oE "[0-9]+"`. If empty, fallback to AGENTS.md `**Last Updated:**` line and parse `(Session N —`. If both empty, default to Session 1.
-- Validate: new N = last N + 1. If git log already has `wrap Session N`, bail (idempotency guard).
-- Check `command -v git` — if missing, halt. Check `git remote get-url origin` — if missing, halt with setup instructions.
-- Check sprint-status markers exist: `grep -q "sprint-status:start" AGENTS.md`. If missing, halt.
+- Run the deterministic detection script:
+  ```bash
+  N=$(bash ~/.agents/skills/wrap/scripts/wrap.sh pre-flight)
+  ```
+  (Claude Code: also `N=$(bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh pre-flight)`)
+- The script validates git availability, remote origin, sprint-status markers, detects last session N, and checks idempotency. Prints the next session number to stdout.
+- If the script exits non-zero, halt and read the error message.
+- Store N for use in Steps 1 and 3.
 
 ### Step 1: Distill session + codify memory (LLM work)
 

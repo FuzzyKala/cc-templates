@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # scripts/wrap.sh — Mechanical steps for the /wrap skill.
 # Usage:
+#   bash scripts/wrap.sh pre-flight [--dry-run]
 #   bash scripts/wrap.sh update-agents-md [--dry-run]
 #   bash scripts/wrap.sh commit-push <session-N> [--dry-run]
 #
-# update-agents-md: Reads /tmp/wrap-payload.txt, replaces sprint-status block
-#   in AGENTS.md. Validates: no-op, 3-tier size guard, marker sanity.
+# pre-flight: Detect last session N, validate repo + markers, print N to stdout.
+# update-agents-md: Reads /tmp/wrap-payload.txt, replaces sprint-status block.
 # commit-push: git add + commit + push with retry.
 
 set -euo pipefail
@@ -14,7 +15,7 @@ PAYLOAD_FILE="${WRAP_PAYLOAD_FILE:-/tmp/wrap-payload.txt}"
 AGENTS="AGENTS.md"
 
 usage() {
-  echo "Usage: $0 {update-agents-md|commit-push} [--dry-run]" >&2
+  echo "Usage: $0 {pre-flight|update-agents-md|commit-push} [--dry-run]" >&2
   exit 1
 }
 
@@ -27,6 +28,39 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=1 ;;
   esac
 done
+
+do_pre_flight() {
+  command -v git >/dev/null 2>&1 || { echo "Error: git not found" >&2; exit 1; }
+  git rev-parse --show-toplevel >/dev/null 2>&1 || { echo "Error: not in a git repo" >&2; exit 1; }
+  git remote get-url origin >/dev/null 2>&1 || { echo "Error: no git remote 'origin'" >&2; exit 1; }
+
+  [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
+  grep -q "sprint-status:start" "$AGENTS" \
+    || { echo "Error: <!-- sprint-status:start --> marker not found in $AGENTS" >&2; exit 1; }
+
+  LAST_N=$(git log --format=%s --grep="^chore: wrap Session [0-9]" -1 2>/dev/null \
+    | grep -oE '[0-9]+' | head -1 || true)
+
+  if [[ -z "$LAST_N" ]]; then
+    LAST_N=$(grep -m1 -oE 'Session [0-9]+' "$AGENTS" 2>/dev/null \
+      | grep -oE '[0-9]+' || echo "0")
+  fi
+
+  [[ "$LAST_N" =~ ^[0-9]+$ ]] || LAST_N=0
+  NEW_N=$((LAST_N + 1))
+
+  if git log --format=%s --grep="^chore: wrap Session ${NEW_N} " -1 2>/dev/null | grep -q .; then
+    echo "Error: wrap Session ${NEW_N} already exists in git log" >&2
+    exit 1
+  fi
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] Session detection: last=$LAST_N, next=$NEW_N"
+    exit 0
+  fi
+
+  echo "$NEW_N"
+}
 
 do_update_agents_md() {
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
@@ -50,17 +84,14 @@ do_update_agents_md() {
 
   [[ -s "$TMP" ]] || { echo "Error: awk produced empty output — check markers" >&2; exit 1; }
 
-  # Check markers on temp file BEFORE mv
   grep -q "sprint-status:start" "$TMP" || { echo "Error: sprint-status:start lost in awk output" >&2; exit 1; }
   grep -q "sprint-status:end" "$TMP" || { echo "Error: sprint-status:end lost in awk output" >&2; exit 1; }
 
-  # No-op detection
   if cmp -s "$AGENTS" "$TMP" 2>/dev/null || diff -q "$AGENTS" "$TMP" >/dev/null 2>&1; then
-    echo "No-op wrap — payload identical to current Sprint Status. Use --dry-run to test intentionally."
+    echo "No-op wrap — payload identical to current Sprint Status."
     exit 0
   fi
 
-  # Size guard
   SIZE=$(wc -c < "$TMP")
   if [[ "$SIZE" -ge 32768 ]]; then
     echo "Error: AGENTS.md would be ${SIZE}B (>= 32K Codex cap). Trim payload." >&2
@@ -134,11 +165,13 @@ do_commit_push() {
 }
 
 case "$SUB" in
+  pre-flight)
+    do_pre_flight
+    ;;
   update-agents-md)
     do_update_agents_md
     ;;
   commit-push)
-    shift
     do_commit_push "$@"
     ;;
   *)
