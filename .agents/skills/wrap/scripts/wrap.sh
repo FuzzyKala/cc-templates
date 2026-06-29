@@ -2,12 +2,13 @@
 # scripts/wrap.sh — Mechanical steps for the /wrap skill.
 # Usage:
 #   bash scripts/wrap.sh pre-flight [--dry-run]
-#   bash scripts/wrap.sh update-agents-md [--dry-run]
-#   bash scripts/wrap.sh commit-push <session-N> [--dry-run]
+#   bash scripts/wrap.sh update-agents-md <session-N> [--dry-run]
+#   bash scripts/wrap.sh commit-push [--dry-run]
 #
 # pre-flight: Detect last session N, validate repo + markers, print N to stdout.
-# update-agents-md: Reads /tmp/wrap-payload.txt, replaces sprint-status block.
-# commit-push: git add + commit + push with retry.
+# update-agents-md: Reads /tmp/wrap-payload.txt, replaces sprint-status block,
+#   then git add + git commit AGENTS.md with auto-generated summary from payload.
+# commit-push: git push with retry (AGENTS.md already committed).
 
 set -euo pipefail
 
@@ -63,6 +64,7 @@ do_pre_flight() {
 }
 
 do_update_agents_md() {
+  local N="${1:-}"
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
   grep -q "sprint-status:start" "$AGENTS" \
     || { echo "Error: <!-- sprint-status:start --> marker not found" >&2; exit 1; }
@@ -108,32 +110,26 @@ do_update_agents_md() {
   fi
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] Would write AGENTS.md ($SIZE bytes):"
+    echo "[dry-run] Would write + commit AGENTS.md ($SIZE bytes):"
     diff "$AGENTS" "$TMP" || true
+    echo "[dry-run]   git commit -m \"chore: wrap Session ${N} — <summary>\""
     exit 0
   fi
 
   mv "$TMP" "$AGENTS"
-  echo "AGENTS.md updated ($SIZE bytes)"
+
+  SUMMARY=$(head -1 "$PAYLOAD_FILE" | sed 's/^\*\*Last shipped\*\*: //' | head -1 | cut -c1-120)
+  git add AGENTS.md
+  git commit -m "chore: wrap Session ${N} — ${SUMMARY}" || true
+  echo "AGENTS.md updated and committed ($SIZE bytes)"
 }
 
 do_commit_push() {
-  local N="${1:-}"
-  local SUMMARY="${2:-wrap update}"
-
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] Would commit and push:"
-    echo "  git add AGENTS.md"
-    echo "  git commit -m \"chore: wrap Session ${N} — ${SUMMARY}\""
+    echo "[dry-run] Would push:"
     echo "  git push"
     exit 0
   fi
-
-  git diff-index --quiet HEAD \
-    || { echo "Error: working tree has unstaged changes — commit or stash first" >&2; exit 2; }
-
-  git add AGENTS.md
-  git commit -m "chore: wrap Session ${N} — ${SUMMARY}" || { echo "Error: commit failed" >&2; exit 2; }
 
   BRANCH=$(git symbolic-ref --short HEAD)
   MAX=3 BASE=2 attempt=0
@@ -169,7 +165,7 @@ case "$SUB" in
     do_pre_flight
     ;;
   update-agents-md)
-    do_update_agents_md
+    do_update_agents_md "$@"
     ;;
   commit-push)
     do_commit_push "$@"

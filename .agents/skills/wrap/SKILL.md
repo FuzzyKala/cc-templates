@@ -42,19 +42,19 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 - If memory was written: `git add .agent-memory/` and `git commit -m "chore(memory): codify N entries from Session N"`. Do NOT push yet.
 - If no memory candidates, skip. If `.agent-memory/INDEX.md` exceeds 200 lines, archive oldest 50% to `.agent-memory/ARCHIVE.md` first.
 
-### Step 2: Update AGENTS.md
+### Step 2: Update AGENTS.md + commit
 
 Run the deterministic script:
 
 ```bash
-bash ~/.agents/skills/wrap/scripts/wrap.sh update-agents-md [--dry-run]
+bash ~/.agents/skills/wrap/scripts/wrap.sh update-agents-md <session-N> [--dry-run]
 ```
 
-(Claude Code: also `bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh update-agents-md [--dry-run]`)
+(Claude Code: also `bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh update-agents-md <session-N> [--dry-run]`)
 
-The script reads `/tmp/wrap-payload.txt` from Step 1, performs awk sed-replace, no-op detection, 3-tier size guard, and marker sanity check.
+The script reads `/tmp/wrap-payload.txt` from Step 1, performs awk sed-replace, no-op detection, 3-tier size guard, marker sanity check, then `git add` + `git commit` AGENTS.md. The commit message is auto-generated from the first line of the payload.
 
-### Step 3: Commit + push
+### Step 3: Push
 
 Run the deterministic script:
 
@@ -64,7 +64,7 @@ bash ~/.agents/skills/wrap/scripts/wrap.sh commit-push [--dry-run]
 
 (Claude Code: also `bash ${CLAUDE_SKILL_DIR}/scripts/wrap.sh commit-push [--dry-run]`)
 
-The script handles git add, commit, and push with retry (max 3, jitter, permanent error classification) and recovery instructions.
+The script handles git push with retry (max 3, jitter, permanent error classification) and recovery instructions. AGENTS.md is already committed — this step only pushes.
 
 - If `scripts/wrap-hooks.sh` exists at repo root and is executable, invoke it post-push (Anchor-specific housekeeping):
   ```bash
