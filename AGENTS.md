@@ -40,14 +40,14 @@ Solo developers and small teams who use more than one coding CLI (e.g., Claude C
 ### Goals (v3.0.0)
 
 - Single canonical `AGENTS.md`. Edit once, all three CLIs see the change.
-- Skills are first-class. Slash commands work because Claude Code auto-discovers `.claude/skills/*/SKILL.md`. Other CLIs use them indirectly (via the AGENTS.md they share).
+- Skills are first-class. Slash commands work because Claude Code auto-discovers `.claude/skills/*/SKILL.md` (symlinked to `.agents/skills/*/` for cross-agent access). Other CLIs use them indirectly (via the AGENTS.md they share).
 - CLI-first tool preference encoded in the template, with a per-service matrix.
 - Plain Markdown + git. No npm dependencies, no build step.
 
 ### Design Decisions (locked in v3)
 
 - **No automatic v2 → v3 migration.** v2 is preserved on `v2-archive` branch; users adopt v3 by re-bootstrapping.
-- **Skills, not commands.** New slash-invocable behavior is authored as `.claude/skills/<name>/SKILL.md` per <https://code.claude.com/docs/en/skills>. v2's `commands/*.md` were migrated.
+- **Skills, not commands.** New slash-invocable behavior is authored as `.agents/skills/<name>/SKILL.md` (cross-agent standard path, symlinked to `.claude/skills/<name>/` for Claude Code), per <https://code.claude.com/docs/en/skills>. v2's `commands/*.md` were migrated.
 - **`/wrap`, not `/recap`.** Claude Code v2.1.108+ ships a built-in `/recap` (one-line synopsis) that cannot be overridden. The session-end full-recap behavior gets a different name.
 - **Keep `cc-templates` repo name.** The `agents-md-*` namespace is crowded on GitHub as of 2026-05. The "cc" prefix can be read as "Coding CLI" (covers Claude Code / Codex CLI / Antigravity CLI).
 
@@ -157,7 +157,7 @@ There is no build step. To test changes:
 ## Coding Style & Naming Conventions
 
 - Markdown: ATX headings (`# ` not `===`). No trailing whitespace. UTF-8.
-- Skill files: `.claude/skills/<kebab-name>/SKILL.md`. Frontmatter requires `name:` and `description:`.
+- Skill files: `.agents/skills/<kebab-name>/SKILL.md` (symlinked to `.claude/skills/<kebab-name>/` for Claude Code). Frontmatter requires `name:` and `description:`.
 - Templates use `{{PLACEHOLDER}}` for substitution sites. Names are SCREAMING_SNAKE_CASE.
 - Bash scripts: `#!/bin/bash` shebang, `set -e`, no `set -u` (the v2 hook relies on optional vars).
 

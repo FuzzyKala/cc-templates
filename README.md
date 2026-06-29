@@ -16,10 +16,9 @@ Most coding agents (Claude Code, OpenAI Codex CLI, Google Antigravity CLI) load 
 
 If you use more than one of these tools, you end up with multiple near-duplicate config files that drift apart. `cc-templates` solves that: **`AGENTS.md` is the single canonical file**, with a 1-line `CLAUDE.md` thin wrapper that imports from it. Edit `AGENTS.md` → all CLIs see the change.
 
-The repo also ships three skills that work inside Claude Code's `.claude/skills/` directory:
+The repo also ships skills under `.agents/skills/`:
 
 - `/wrap` — session-end recap. Distills the session and updates the `AGENTS.md` sprint-status block (between `<!-- sprint-status:start -->` / `<!-- sprint-status:end -->` markers). Git history is the deep archive — no separate session-history file.
-- `/ready` — session-start read-only project context scanner.
 - `/setup-multi-agent` — bootstrap a new project with the AGENTS.md + CLAUDE.md pair.
 
 `AGENTS.md` is governed by the Linux Foundation Agentic AI Foundation (formed 2025-12-09; founding members include Anthropic, OpenAI, Google, AWS, Microsoft, Cloudflare, Bloomberg). Spec: <https://agents.md/>. 60k+ open-source projects use it.
@@ -64,26 +63,30 @@ All three should reference your filled-in `AGENTS.md`.
 
 ## Skill installation
 
-The cct repo ships three Claude Code skills under `.claude/skills/`:
+The cct repo ships two skills under `.agents/skills/` (the Agent Skills standard path, symlinked to `.claude/skills/` for Claude Code):
 
 - `/wrap` — session-end recap that updates the AGENTS.md sprint-status block
-- `/ready` — session-start project context scan
 - `/setup-multi-agent` — bootstrap a new project with multi-CLI config files
 
-By default these are only invocable from inside the cct repo. To make them available from any project, symlink them into your user-global Claude Code skills directory:
+By default these are only invocable from inside the cct repo. To make them available from any project (Claude Code, OpenCode, Codex CLI, and Antigravity CLI):
 
 ```bash
-mkdir -p ~/.claude/skills && \
-  for s in wrap ready setup-multi-agent; do
-    ln -s "$(pwd)/.claude/skills/$s" ~/.claude/skills/$s
-  done
+# Install to the cross-agent standard path
+mkdir -p ~/.agents/skills
+for s in wrap setup-multi-agent; do
+  ln -s "$(pwd)/.agents/skills/$s" ~/.agents/skills/$s
+done
+
+# Symlink Claude Code path for backward compatibility
+mkdir -p ~/.claude/skills
+for s in wrap setup-multi-agent; do
+  ln -s ~/.agents/skills/$s ~/.claude/skills/$s
+done
 ```
 
 (Run from the cct repo root so `$(pwd)` resolves correctly.)
 
-Claude Code follows symlinks during skill discovery, so updates to the cct repo are picked up automatically — no re-install needed.
-
-**Note:** This pattern only works for Claude Code. Codex CLI and Antigravity CLI use different skill mechanisms and are not affected.
+Claude Code follows symlinks during skill discovery. All agents read from `~/.agents/skills/` — updates to the cct repo are picked up automatically via the symlink chain, no re-install needed.
 
 ## Architecture
 
@@ -91,7 +94,7 @@ Claude Code follows symlinks during skill discovery, so updates to the cct repo 
 your-project/
 ├── AGENTS.md         ← canonical project context + sprint-status block at bottom
 ├── CLAUDE.md         ← @AGENTS.md (one line)
-└── .gitignore        ← includes .claude/*, .gemini/, .agents/, .antigravitycli/
+└── .gitignore        ← includes .claude/*, .gemini/, .antigravitycli/
 ```
 
 `AGENTS.md` holds everything — stable project context (working agreement, tech stack, conventions, tool preferences) above the sprint-status markers, and per-session state (Current Sprint Status block) below. `CLAUDE.md` is a 1-line `@AGENTS.md` import — byte-stable across sessions because Claude Code does not yet natively support AGENTS.md, so this thin wrapper bridges the gap.
@@ -106,7 +109,7 @@ The `templates/AGENTS.md.template` shipped here mirrors that user-level Working 
 
 ## Skills included
 
-Drop these in your project's `.claude/skills/` to make them available as slash commands. (cc-templates' own root has them installed for dogfooding — clone the repo and copy `.claude/skills/*` into your project if you want them.)
+Drop these in your project's `.agents/skills/` (or `.claude/skills/` for Claude Code) to make them available as slash commands. (cc-templates' own root has them installed for dogfooding — clone the repo and copy `.agents/skills/*` into your project if you want them.)
 
 ### `/wrap`
 
@@ -114,9 +117,7 @@ Session-end recap. Distills the current session into highlight bullets + a "next
 
 **Distinct from Claude Code's built-in `/recap`** (v2.1.108+), which is a one-line synopsis triggered after terminal idle. `/wrap` is the explicit, full session-end version.
 
-### `/ready`
 
-Read-only project context scanner. Prints a ~30-line snapshot: project name, current sprint state (from the AGENTS.md sprint-status block), git status, installed skills, CLI tool availability matrix (`gh`, `gws`, `rclone`, `ntn`, `acli`, `playwright`). Run at session start to confirm the toolchain is loaded.
 
 ### `/setup-multi-agent`
 
@@ -143,7 +144,7 @@ Stay on MCP where no viable CLI exists: Canva, chrome-devtools, context7.
 
 ## Manual setup (no skill needed)
 
-See [`templates/setup-instructions.md`](templates/setup-instructions.md) for the human checklist.
+The Quick start section above covers the manual bootstrap steps. For BMad-style projects with deferred-work backlogs and spec corpora, copy the optional templates from `templates/extras/` after bootstrapping.
 
 ## Migrating from v2 / v3
 
