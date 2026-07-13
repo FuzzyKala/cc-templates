@@ -22,6 +22,8 @@ set -euo pipefail
 CONTEXT_FILE="${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}"
 PAYLOAD_FILE="${WRAP_PAYLOAD_FILE:-/tmp/wrap-payload.txt}"
 AGENTS="AGENTS.md"
+START_MARKER='<!-- sprint-status:start -->'
+END_MARKER='<!-- sprint-status:end -->'
 
 # jq-update: edit a JSON file in-place while preserving symlinks.
 # Uses cat > to write through the symlink target rather than mv
@@ -30,6 +32,32 @@ jq-update() {
   local f="$1"; shift
   local tmp; tmp=$(mktemp)
   jq "$@" "$f" > "$tmp" && cat "$tmp" > "$f" && rm "$tmp"
+}
+
+# Require one ordered marker pair, with each marker occupying its own line.
+# Prose that merely mentions a marker must never bound the editable block.
+validate_sprint_markers() {
+  local file="$1"
+  local start_count end_count start_line end_line
+
+  start_count=$(awk -v marker="$START_MARKER" '$0 == marker { count++ } END { print count + 0 }' "$file")
+  end_count=$(awk -v marker="$END_MARKER" '$0 == marker { count++ } END { print count + 0 }' "$file")
+
+  if [[ "$start_count" -ne 1 ]]; then
+    echo "Error: expected exactly one exact $START_MARKER marker line in $file (found $start_count)" >&2
+    return 1
+  fi
+  if [[ "$end_count" -ne 1 ]]; then
+    echo "Error: expected exactly one exact $END_MARKER marker line in $file (found $end_count)" >&2
+    return 1
+  fi
+
+  start_line=$(awk -v marker="$START_MARKER" '$0 == marker { print NR }' "$file")
+  end_line=$(awk -v marker="$END_MARKER" '$0 == marker { print NR }' "$file")
+  if [[ "$start_line" -ge "$end_line" ]]; then
+    echo "Error: $START_MARKER must appear before $END_MARKER in $file" >&2
+    return 1
+  fi
 }
 
 usage() {
@@ -53,8 +81,7 @@ do_pre_flight() {
   git remote get-url origin >/dev/null 2>&1 || { echo "Error: no git remote 'origin'" >&2; exit 1; }
 
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
-  grep -q "sprint-status:start" "$AGENTS" \
-    || { echo "Error: <!-- sprint-status:start --> marker not found in $AGENTS" >&2; exit 1; }
+  validate_sprint_markers "$AGENTS"
 
   LAST_N=$(git log --format=%s --grep="^chore: wrap Session [0-9]" -1 2>/dev/null \
     | grep -oE '[0-9]+' | head -1 || true)
@@ -88,10 +115,7 @@ do_update_agents_md() {
     ln -sf "$CONTEXT_FILE" /tmp/wrap-context.json 2>/dev/null || true
   fi
   [[ -f "$AGENTS" ]] || { echo "Error: $AGENTS not found" >&2; exit 1; }
-  grep -q "sprint-status:start" "$AGENTS" \
-    || { echo "Error: <!-- sprint-status:start --> marker not found" >&2; exit 1; }
-  grep -q "sprint-status:end" "$AGENTS" \
-    || { echo "Error: <!-- sprint-status:end --> marker not found" >&2; exit 1; }
+  validate_sprint_markers "$AGENTS"
 
   local SPRINT=""
   local SUMMARY=""
@@ -113,16 +137,14 @@ do_update_agents_md() {
   TMP=$(mktemp /tmp/wrap-agents-XXXXXX) || { echo "Error: mktemp failed" >&2; exit 1; }
   trap 'rm -f "$TMP"' EXIT
 
-  awk -v sprint="$SPRINT" '
-    /<!-- sprint-status:start -->/{print; print sprint; in_block=1; next}
-    /<!-- sprint-status:end -->/{in_block=0; print; next}
+  awk -v sprint="$SPRINT" -v start="$START_MARKER" -v end="$END_MARKER" '
+    $0 == start {print; print sprint; in_block=1; next}
+    $0 == end {in_block=0; print; next}
     !in_block{print}
   ' "$AGENTS" > "$TMP"
 
   [[ -s "$TMP" ]] || { echo "Error: awk produced empty output — check markers" >&2; exit 1; }
-
-  grep -q "sprint-status:start" "$TMP" || { echo "Error: sprint-status:start lost in awk output" >&2; exit 1; }
-  grep -q "sprint-status:end" "$TMP" || { echo "Error: sprint-status:end lost in awk output" >&2; exit 1; }
+  validate_sprint_markers "$TMP"
 
   if cmp -s "$AGENTS" "$TMP" 2>/dev/null || diff -q "$AGENTS" "$TMP" >/dev/null 2>&1; then
     echo "No-op wrap — payload identical to current Sprint Status."

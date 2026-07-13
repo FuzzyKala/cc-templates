@@ -10,6 +10,7 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 
 **Assumed layout:**
 - `AGENTS.md` at repo root with `<!-- sprint-status:start -->` and `<!-- sprint-status:end -->` markers. Sprint-status is 3-label: **Last shipped** / **Next** / **Carry-forwards**.
+- Each marker must appear exactly once as a complete line. Marker text inside explanatory prose does not count and must never bound replacement.
 - `CLAUDE.md` is a 1-line `@AGENTS.md` pointer. Never touch CLAUDE.md.
 - Memory persists at `.agent-memory/<slug>.md` with `.agent-memory/INDEX.md` as cross-reference. For Claude Code auto-load: `ln -s .agent-memory ~/.claude/projects/<slug>/memory`.
 
