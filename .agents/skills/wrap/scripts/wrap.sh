@@ -62,6 +62,7 @@ validate_sprint_markers() {
 
 usage() {
   echo "Usage: $0 {pre-flight|update-agents-md|commit-push} [--dry-run]" >&2
+  echo "       $0 jq-update <file> <jq-filter>" >&2
   exit 1
 }
 
@@ -246,6 +247,12 @@ case "$SUB" in
     ;;
   commit-push)
     do_commit_push "$@"
+    ;;
+  jq-update)
+    command -v jq >/dev/null 2>&1 || { echo "Error: jq not found" >&2; exit 1; }
+    [[ $# -ge 2 ]] || { echo "Usage: $0 jq-update <file> <jq-filter>" >&2; exit 1; }
+    [[ -f "$1" ]] || { echo "Error: $1 not found" >&2; exit 1; }
+    jq-update "$@"
     ;;
   *)
     usage

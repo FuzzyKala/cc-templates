@@ -37,11 +37,14 @@ Wrap up a working session: distill what happened, codify learnings as persistent
 ### Step 1: Distill session + codify memory (LLM work)
 
 - `mkdir -p .agent-memory/` — ensure the memory directory exists.
-- Write the 3-label sprint-status update into the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) under the `sprint_status_update` field. Use `jq-update` (ships with `wrap.sh`) to edit JSON in-place without breaking symlinks:
+- Write the 3-label sprint-status update into the context bus file (`$WRAP_CONTEXT_PATH`, default `/tmp/wrap-context.json`) under the `sprint_status_update` field. Use the `jq-update` subcommand of `wrap.sh`, which edits JSON in-place while preserving symlinks:
   ```bash
-  jq-update "${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}" '. + {sprint_status_update: {last_shipped: "...", next: "...", carry_forwards: [...]}}'
+  bash ~/.agents/skills/wrap/scripts/wrap.sh jq-update "${WRAP_CONTEXT_PATH:-/tmp/wrap-context.json}" \
+    '. + {sprint_status_update: {last_shipped: "...", next: "...", carry_forwards: [...]}}'
   ```
-  (Or use `jq '...' > file` redirect which preserves symlinks. Avoid `mv` — it replaces the symlink with a regular file.)
+  (Claude Code: also `bash /home/kala/.claude/skills/wrap/scripts/wrap.sh jq-update ...`)
+
+  `jq-update` is a function *inside* `wrap.sh`, so it is not callable as a bare command and adding `scripts/` to `PATH` will not find it — always go through `wrap.sh`. Verify the write landed (`jq -r '.sprint_status_update.last_shipped' "$CTX"`) before moving on; a silent no-op here makes Step 2 re-commit the previous session verbatim. If `wrap.sh` is unavailable, the equivalent is `jq '...' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm "$f.tmp"` — `cat >` writes through a symlink where `mv` would replace it with a regular file.
   ```json
   {
     "sprint_status_update": {
